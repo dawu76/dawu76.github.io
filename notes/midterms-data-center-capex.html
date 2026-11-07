@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Midterms and Data Centers</title>
+<meta name="description" content="Back-of-envelope sizing of how much US AI capex the November 3, 2026 midterms defer, the data-center pipeline by political-risk tier and stage, and valuation levers by sector.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231d4f91'/%3E%3Crect x='7' y='17' width='4' height='9' fill='%23fff'/%3E%3Crect x='14' y='11' width='4' height='15' fill='%23fff'/%3E%3Crect x='21' y='6' width='4' height='20' fill='%23e0a458'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --surface-2: #eef2f7; --border: #d6dde8;
+  --text: #16202d; --text-dim: #536175;
+  --accent: #1d4f91; --accent-soft: #e3ecf8;
+  --grey: #b9c0ca; --grey-2: #d9dee6;
+  --neg: #b03a2e; --neg-soft: #f8e5e2;
+  --pos: #2f6b4f; --pos-soft: #e2f0e8;
+  --amber: #a8570f; --amber-soft: #f8ecdf;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e141d; --surface: #151d29; --surface-2: #1b2534; --border: #2a3648;
+    --text: #e3e9f1; --text-dim: #9aa8bb;
+    --accent: #74a8eb; --accent-soft: #1a2c45;
+    --grey: #4d5a6c; --grey-2: #2c3747;
+    --neg: #ee8a7d; --neg-soft: #3d1f1c;
+    --pos: #74c49a; --pos-soft: #183326;
+    --amber: #e3a660; --amber-soft: #3a2a19;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e141d; --surface: #151d29; --surface-2: #1b2534; --border: #2a3648;
+  --text: #e3e9f1; --text-dim: #9aa8bb;
+  --accent: #74a8eb; --accent-soft: #1a2c45;
+  --grey: #4d5a6c; --grey-2: #2c3747;
+  --neg: #ee8a7d; --neg-soft: #3d1f1c;
+  --pos: #74c49a; --pos-soft: #183326;
+  --amber: #e3a660; --amber-soft: #3a2a19;
+}
+* { box-sizing: border-box; }
+html { font-size: 17px; scroll-behavior: smooth; scroll-padding-top: 4rem; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif; line-height: 1.55; overflow-wrap: break-word; }
+.wrap { max-width: 68rem; margin: 0 auto; padding: 0 1rem 4rem; }
+h1, h2, h3 { text-wrap: balance; line-height: 1.2; }
+h1 { font-family: "IBM Plex Serif", Georgia, serif; font-size: 2.1rem; margin: 0 0 .6rem; }
+h2 { font-size: 1.45rem; margin: 0 0 .4rem; }
+h3 { font-size: 1.08rem; margin: 1.5rem 0 .5rem; }
+p { max-width: 70ch; margin: .5rem 0; }
+ul, ol { padding-left: 1.3rem; } li { margin: .25rem 0; }
+.mono, .num { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+.dim { color: var(--text-dim); } .small { font-size: .85rem; }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header.top { padding: 2.2rem 0 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+.byline { color: var(--text-dim); font-size: .9rem; }
+.conf { display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: .7rem; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase; padding: .1rem .45rem; border-radius: 3px;
+  background: var(--amber-soft); color: var(--amber); vertical-align: .1em; }
+nav.toc { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .5rem 0; margin-bottom: 1.2rem; overflow-x: auto; white-space: nowrap; }
+nav.toc a { display: inline-block; margin-right: 1rem; font-size: .85rem; text-decoration: none; color: var(--text-dim); }
+nav.toc a:hover { color: var(--accent); }
+
+section { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.3rem 1.3rem 1.1rem; margin: 0 0 1.2rem; }
+.lead { font-size: 1.05rem; }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .8rem; margin: 1rem 0 .4rem; }
+.tile { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: .8rem .9rem; }
+.tile .big { font-family: "IBM Plex Mono", monospace; font-size: 1.6rem; font-weight: 600; color: var(--accent); line-height: 1.1; }
+.tile .lbl { font-size: .85rem; color: var(--text-dim); margin-top: .3rem; }
+
+.tbl { width: 100%; overflow-x: auto; margin: .6rem 0; }
+table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+th, td { text-align: left; vertical-align: top; padding: .45rem .55rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 600; white-space: nowrap; }
+td.num, th.num { text-align: right; white-space: nowrap; }
+tr.total td { font-weight: 600; border-top: 2px solid var(--border); }
+.pill { display: inline-block; font-size: .72rem; font-weight: 600; padding: .05rem .4rem; border-radius: 3px; white-space: nowrap; }
+.pill.neg { background: var(--neg-soft); color: var(--neg); }
+.pill.mix { background: var(--amber-soft); color: var(--amber); }
+.pill.pos { background: var(--pos-soft); color: var(--pos); }
+
+.chart { margin: 1rem 0 .4rem; }
+.chart-title { font-weight: 600; margin-bottom: .2rem; }
+.chart-sub { font-size: .82rem; color: var(--text-dim); margin-bottom: .7rem; }
+.grp { display: block; font-size: .72rem; }
+/* diverging bars */
+.drow { display: grid; grid-template-columns: 12rem 1fr; gap: .6rem; align-items: center; min-height: 2.1rem; }
+.dlab { font-size: .86rem; line-height: 1.2; }
+.dtrack { position: relative; height: 1.1rem; }
+.dzero { position: absolute; top: -.5rem; bottom: -.5rem; width: 1px; background: var(--text-dim); }
+.dbar { position: absolute; top: 0; height: 100%; border-radius: 2px; }
+.dbar.down { background: var(--grey); } .dbar.up { background: var(--accent); }
+.dval { position: absolute; top: -.05rem; font-size: .76rem; color: var(--text-dim); white-space: nowrap; }
+/* whiskers */
+.wrow { display: grid; grid-template-columns: 14rem 1fr; gap: .6rem; align-items: center; min-height: 3rem; }
+.wlab { font-size: .86rem; line-height: 1.2; }
+.wtrack { position: relative; height: 2.4rem; }
+.wline { position: absolute; top: .55rem; height: 3px; background: var(--grey); border-radius: 2px; }
+.wdot { position: absolute; top: .25rem; width: .8rem; height: .8rem; margin-left: -.4rem; border-radius: 50%; background: var(--accent); }
+.wv { position: absolute; top: 1.15rem; transform: translateX(-50%); font-size: .72rem; color: var(--text-dim); white-space: nowrap; }
+.wv.base { color: var(--accent); font-weight: 600; }
+/* tier bars */
+.trow { display: grid; grid-template-columns: 14rem 1fr; gap: .6rem; align-items: center; min-height: 2.6rem; }
+.tlab { font-size: .86rem; line-height: 1.2; }
+.ttrack { position: relative; height: 1.2rem; display: flex; }
+.seg { height: 100%; }
+.seg.uc { background: var(--accent); border-radius: 2px 0 0 2px; }
+.seg.ns { background: var(--grey-2); border: 1px solid var(--grey); border-left: 0; }
+.seg.kept { background: var(--grey); border-radius: 2px 0 0 2px; }
+.seg.lost { background: var(--neg); opacity: .75; }
+.tv { margin-left: .5rem; font-size: .76rem; color: var(--text-dim); white-space: nowrap; align-self: center; }
+.legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: .8rem; color: var(--text-dim); margin: .3rem 0 .6rem; }
+.sw { display: inline-block; width: .8rem; height: .8rem; border-radius: 2px; vertical-align: -.1em; margin-right: .3rem; }
+.formula { font-family: "IBM Plex Mono", monospace; background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 6px; padding: .6rem .8rem; font-size: .88rem; overflow-x: auto; }
+.callout { border-left: 3px solid var(--amber); background: var(--amber-soft); padding: .6rem .9rem; border-radius: 0 6px 6px 0; margin: .8rem 0; }
+.levers { counter-reset: lv; list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: .6rem; }
+.levers li { counter-increment: lv; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: .6rem .8rem .6rem 2.4rem; position: relative; margin: 0; font-size: .9rem; }
+.levers li::before { content: counter(lv); position: absolute; left: .8rem; top: .55rem; font-family: "IBM Plex Mono", monospace; font-weight: 600; color: var(--accent); }
+ul.check { list-style: none; padding-left: 0; }
+ul.check li::before { content: "☐ "; color: var(--text-dim); }
+footer { font-size: .8rem; color: var(--text-dim); margin-top: 1.5rem; }
+
+@media (max-width: 640px) {
+  h1 { font-size: 1.6rem; }
+  section { padding: 1rem .9rem; }
+  .drow, .wrow, .trow { grid-template-columns: 1fr; gap: .15rem; }
+  .drow { margin-bottom: .45rem; }
+  .wrow, .trow { margin-bottom: .5rem; }
+  .ttrack { padding-right: 0; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Midterms and the Data-Center Buildout</h1>
+  <p class="lead">How much US AI capex the November 3, 2026 midterms defer, where the pipeline GW sit, and which stocks and sectors move.</p>
+  <div class="byline">As of November 5, 2026 · <span class="conf">Confidence: low</span> · Wiki page: <span class="mono">midterms-data-center-capex-sizing-2026-11.md</span></div>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#summary">Summary</a><a href="#changed">What changed</a><a href="#market">Market reaction</a><a href="#methods">Sizing methods</a><a href="#pipeline">Pipeline by tier</a><a href="#levers">Valuation levers</a><a href="#watch">What to watch</a><a href="#sources">Sources</a>
+</nav>
+
+<section id="summary">
+  <h2>Summary</h2>
+  <p>The election defers roughly <strong>$15-125B of 2027 US AI capex</strong>, base case <strong>~$50B (~6%)</strong>. Most of it is a 6-12 month delay or a move to another state. About $35B is lost for good.</p>
+  <div class="tiles">
+    <div class="tile"><div class="big">~$48B</div><div class="lbl">2027 US AI capex deferred, base case (range $14-126B)</div></div>
+    <div class="tile"><div class="big">~16 GW</div><div class="lbl">Expected completions lost (range 10-22 GW), ~11% of likely builds</div></div>
+    <div class="tile"><div class="big">146 of 346</div><div class="lbl">GW of pipeline likely to be built even before the election</div></div>
+    <div class="tile"><div class="big">20.7 GW</div><div class="lbl">Under construction in TX and GA, ~30% of all US builds; the swing factor</div></div>
+  </div>
+  <p>Headline figures of 41% (Cleanview) or 244 GW (Bernstein) count announced projects at face value. The hit lands on local, early-cycle suppliers and Texas-heavy developers. Chips are mostly redirected to other sites rather than lost.</p>
+  <p class="small dim">Inputs are secondary-source figures or labeled assumptions.</p>
+</section>
+
+<section id="changed">
+  <h2>What changed on November 3</h2>
+  <p>The two states that matter most for US AI capacity elected governors who promised pauses, and Democrats won both chambers of Congress.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Change</th><th>Detail</th><th>Why it matters</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Texas governor</strong></td><td>Gina Hinojosa beat Greg Abbott; takes office January 19. Pledged a moratorium on all data-center approvals until the legislature acts, plus ending tax breaks.</td><td>Texas is ~27% of planned US data-center GW (Wells Fargo).</td></tr>
+      <tr><td><strong>Existing Texas pause</strong></td><td>Abbott froze new ERCOT grid approvals in August and TCEQ permits in September; grid audit due December.</td><td>Hinojosa needs no new law to keep it. GLJ puts 13 GW of Texas power at risk.</td></tr>
+      <tr><td><strong>Georgia governor</strong></td><td>Keisha Lance Bottoms promised an executive order pausing new construction and a review of tax incentives. Democrats also won a 3-2 PSC majority.</td><td>Georgia is ~7% of planned GW, the third-largest market.</td></tr>
+      <tr><td><strong>Other governors</strong></td><td>Democratic gains in Nevada and Ohio with candidates who ran on tighter rules. New York already has a 50 MW+ statewide pause.</td><td>Ohio and Nevada are secondary hubs.</td></tr>
+      <tr><td><strong>Local ballots</strong></td><td>~38-44 local measures restricting data centers passed; 15+ Ohio towns banned facilities over 25 MW.</td><td>Local veto power is spreading in the Midwest, where relocated projects would go.</td></tr>
+      <tr><td><strong>Congress</strong></td><td>Democrats won the House and Senate.</td><td>Cannot override a veto before 2029; can hold hearings and block permitting reform. State action matters more.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="market">
+  <h2>Market reaction: two different days</h2>
+  <p>On November 4 the market read lower capex as good for the spenders and bad for the builders. On November 5 it read it as less AI revenue and tighter funding.</p>
+  <div class="chart" role="img" aria-label="November 4: data-center builders fell 9-23% while hyperscalers rose 3-7%">
+    <div class="chart-title">November 4: data-center builders fell 9-23% while hyperscalers rose 3-7%</div>
+    <div class="chart-sub">One-day change, Nov 3 close to Nov 4 close. Blue = gained; grey = fell. VST and CEG approximate.</div>
+<div class="drow"><div class="dlab">Hut 8 <span class="mono dim">HUT</span><span class="grp dim">Texas developer</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar down" style="left:5.14%;width:66.29%" title="Hut 8 (HUT), Texas developer: -23.2%"></div><span class="dval num" style="right:95.66%">-23.2%</span></div></div>
+<div class="drow"><div class="dlab">Sterling <span class="mono dim">STRL</span><span class="grp dim">Site work</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar down" style="left:10.00%;width:61.43%" title="Sterling (STRL), Site work: -21.5%"></div><span class="dval num" style="right:90.80%">-21.5%</span></div></div>
+<div class="drow"><div class="dlab">Modine <span class="mono dim">MOD</span><span class="grp dim">Cooling</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar down" style="left:10.29%;width:61.14%" title="Modine (MOD), Cooling: -21.4%"></div><span class="dval num" style="right:90.51%">-21.4%</span></div></div>
+<div class="drow"><div class="dlab">Cipher <span class="mono dim">CIFR</span><span class="grp dim">Texas developer</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar down" style="left:14.29%;width:57.14%" title="Cipher (CIFR), Texas developer: -20.0%"></div><span class="dval num" style="right:86.51%">-20.0%</span></div></div>
+<div class="drow"><div class="dlab">INNIO <span class="mono dim">INIO</span><span class="grp dim">On-site gas</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar down" style="left:15.71%;width:55.71%" title="INNIO (INIO), On-site gas: -19.5%"></div><span class="dval num" style="right:85.09%">-19.5%</span></div></div>
+<div class="drow"><div class="dlab">Solaris Energy <span class="mono dim">SEI</span><span class="grp dim">On-site gas</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar down" style="left:23.14%;width:48.29%" title="Solaris Energy (SEI), On-site gas: -16.9%"></div><span class="dval num" style="right:77.66%">-16.9%</span></div></div>
+<div class="drow"><div class="dlab">Comfort Systems <span class="mono dim">FIX</span><span class="grp dim">MEP contractor</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar down" style="left:28.29%;width:43.14%" title="Comfort Systems (FIX), MEP contractor: -15.1%"></div><span class="dval num" style="right:72.51%">-15.1%</span></div></div>
+<div class="drow"><div class="dlab">Vistra <span class="mono dim">VST</span><span class="grp dim">Merchant power</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar down" style="left:32.00%;width:39.43%" title="Vistra (VST), Merchant power: -13.8%"></div><span class="dval num" style="right:68.80%">-13.8%</span></div></div>
+<div class="drow"><div class="dlab">Vertiv <span class="mono dim">VRT</span><span class="grp dim">Power and cooling</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar down" style="left:34.57%;width:36.86%" title="Vertiv (VRT), Power and cooling: -12.9%"></div><span class="dval num" style="right:66.23%">-12.9%</span></div></div>
+<div class="drow"><div class="dlab">CoreWeave <span class="mono dim">CRWV</span><span class="grp dim">Neocloud</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar down" style="left:43.14%;width:28.29%" title="CoreWeave (CRWV), Neocloud: -9.9%"></div><span class="dval num" style="right:57.66%">-9.9%</span></div></div>
+<div class="drow"><div class="dlab">GE Vernova <span class="mono dim">GEV</span><span class="grp dim">Power equipment</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar down" style="left:44.86%;width:26.57%" title="GE Vernova (GEV), Power equipment: -9.3%"></div><span class="dval num" style="right:55.94%">-9.3%</span></div></div>
+<div class="drow"><div class="dlab">Constellation <span class="mono dim">CEG</span><span class="grp dim">Merchant power</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar down" style="left:45.71%;width:25.71%" title="Constellation (CEG), Merchant power: -9.0%"></div><span class="dval num" style="right:55.09%">-9.0%</span></div></div>
+<div class="drow"><div class="dlab">Nvidia <span class="mono dim">NVDA</span><span class="grp dim">Chips</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar down" style="left:62.29%;width:9.14%" title="Nvidia (NVDA), Chips: -3.2%"></div><span class="dval num" style="right:38.51%">-3.2%</span></div></div>
+<div class="drow"><div class="dlab">Broadcom <span class="mono dim">AVGO</span><span class="grp dim">Chips</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar down" style="left:65.71%;width:5.71%" title="Broadcom (AVGO), Chips: -2.0%"></div><span class="dval num" style="right:35.09%">-2.0%</span></div></div>
+<div class="drow"><div class="dlab">Alphabet <span class="mono dim">GOOGL</span><span class="grp dim">Hyperscaler</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar up" style="left:71.43%;width:9.14%" title="Alphabet (GOOGL), Hyperscaler: +3.2%"></div><span class="dval num" style="left:81.37%">+3.2%</span></div></div>
+<div class="drow"><div class="dlab">Apple <span class="mono dim">AAPL</span><span class="grp dim">Memory buyer</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar up" style="left:71.43%;width:15.14%" title="Apple (AAPL), Memory buyer: +5.3%"></div><span class="dval num" style="left:87.37%">+5.3%</span></div></div>
+<div class="drow"><div class="dlab">Amazon <span class="mono dim">AMZN</span><span class="grp dim">Hyperscaler</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar up" style="left:71.43%;width:17.43%" title="Amazon (AMZN), Hyperscaler: +6.1%"></div><span class="dval num" style="left:89.66%">+6.1%</span></div></div>
+<div class="drow"><div class="dlab">Microsoft <span class="mono dim">MSFT</span><span class="grp dim">Hyperscaler</span></div><div class="dtrack"><div class="dzero" style="left:71.43%"></div><div class="dbar up" style="left:71.43%;width:19.14%" title="Microsoft (MSFT), Hyperscaler: +6.7%"></div><span class="dval num" style="left:91.37%">+6.7%</span></div></div>
+  </div>
+  <p>The earliest-cycle names (site work, cooling, on-site gas, Texas developers) fell most. Nvidia fell 3% because GPUs can be shipped to another site. The S&amp;P 500 rose ~2%.</p>
+  <h3>November 5</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Index or stock</th><th class="num">Change</th></tr></thead>
+    <tbody>
+      <tr><td>Nasdaq 100 ($2.5T lost)</td><td class="num">-6.4%</td></tr>
+      <tr><td>Nasdaq Composite (~12% off Oct 6 high)</td><td class="num">-5.5%</td></tr>
+      <tr><td>Philadelphia Semiconductor (SOX)</td><td class="num">-12%</td></tr>
+      <tr><td>S&amp;P 500</td><td class="num">~-4.4%</td></tr>
+      <tr><td>AMD</td><td class="num">-17%</td></tr>
+      <tr><td>Nebius</td><td class="num">-15%</td></tr>
+      <tr><td>Applied Digital, Cipher, IREN</td><td class="num">worse than -14%</td></tr>
+      <tr><td>CoreWeave (5-yr CDS record 1,268 bp)</td><td class="num">-10%</td></tr>
+      <tr><td>Nvidia</td><td class="num">-9%</td></tr>
+      <tr><td>Microsoft, Amazon, Alphabet</td><td class="num">-2% to -4%</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small dim">Part of the Nov 5 move reflects worries already in motion (Qualcomm's miss, CoreWeave credit, Meta's October capex raise). Bloomberg reported Microsoft tightening oversight of some Nebius, IREN and Nscale projects.</p>
+</section>
+
+<section id="methods">
+  <h2>Four ways to size the capex hit</h2>
+  <p>The methods land on ~5-6% of 2027 US AI capex deferred and ~1-2% lost for good, mostly in buildings and power gear.</p>
+  <div class="callout small"><strong>Inputs.</strong> 2027 top-4 hyperscaler capex consensus ~$935B. Assumptions: US AI capex 2027 ~$800B (all buyers); ~28 GW of US capacity added in 2028; ~$12B/GW for shell, power and cooling (spent 12-24 months before power-on) and ~$35B/GW for IT (spent 0-6 months before). UBS: ~30% of 2028 additions at risk, "Texas alone is 18 GW of that."</div>
+  <div class="chart" role="img" aria-label="Capex effect by method, base case and range, billions of dollars">
+    <div class="chart-title">Every method's base case sits between $30B and $120B; the bear tails run to $250B</div>
+    <div class="chart-sub">Base case (dot) and mild-to-bear range (line), $B of US AI capex. Scale 0-$260B.</div>
+<div class="wrow"><div class="wlab">1. Share of spend<span class="grp dim">Total spend displaced from 2027</span></div><div class="wtrack"><div class="wline" style="left:5.38%;width:43.08%"></div><div class="wdot" style="left:18.46%" title="1. Share of spend: base $48B, range $14-126B"></div><span class="wv num" style="left:5.38%">$14B</span><span class="wv num base" style="left:18.46%">$48B</span><span class="wv num" style="left:48.46%">$126B</span></div></div>
+<div class="wrow"><div class="wlab">2. Gigawatts (2027-28)<span class="grp dim">Spend shifted across two years</span></div><div class="wtrack"><div class="wline" style="left:20.00%;width:75.77%"></div><div class="wdot" style="left:45.38%" title="2. Gigawatts (2027-28): base $118B, range $52-249B"></div><span class="wv num" style="left:20.00%">$52B</span><span class="wv num base" style="left:45.38%">$118B</span><span class="wv num" style="left:95.77%">$249B</span></div></div>
+<div class="wrow"><div class="wlab">2b. Gigawatts, permanent<span class="grp dim">Spend lost for good</span></div><div class="wtrack"><div class="wline" style="left:2.69%;width:38.46%"></div><div class="wdot" style="left:13.85%" title="2b. Gigawatts, permanent: base $36B, range $7-107B"></div><span class="wv num" style="left:2.69%">$7B</span><span class="wv num base" style="left:13.85%">$36B</span><span class="wv num" style="left:41.15%">$107B</span></div></div>
+<div class="wrow"><div class="wlab">3. Bottlenecks (shell/power)<span class="grp dim">Dollars leaving supplier P&Ls</span></div><div class="wtrack"><div class="wline" style="left:5.00%;width:19.62%"></div><div class="wdot" style="left:11.54%" title="3. Bottlenecks (shell/power): base $30B, range $13-64B"></div><span class="wv num" style="left:5.00%">$13B</span><span class="wv num base" style="left:11.54%">$30B</span><span class="wv num" style="left:24.62%">$64B</span></div></div>
+  </div>
+  <div class="tbl"><table>
+    <thead><tr><th>Method</th><th>Formula</th><th>What it measures</th></tr></thead>
+    <tbody>
+      <tr><td>1. Share of spend</td><td>US AI capex × affected-state share × new-start share × pause years × (1 − relocation rate)</td><td>Total spend displaced from 2027</td></tr>
+      <tr><td>2. Gigawatts</td><td>2028 additions × UBS 30% × P(pause binds) × $47B/GW, split into relocated, delayed, canceled</td><td>Spend shifted across 2027-28 and the part lost for good</td></tr>
+      <tr><td>3. Bottlenecks</td><td>Chips are supply-capped and go to other sites; buildings, turbines and labor are local</td><td>Dollars that leave supplier P&amp;Ls in 2027</td></tr>
+      <tr><td>4. Market-implied</td><td>Delaying all cash flows <em>t</em> years cuts value by 1 − 1/(1+r)<sup>t</sup></td><td>What prices already assume</td></tr>
+    </tbody>
+  </table></div>
+  <h3>Method 4: what a delay costs</h3>
+  <div class="formula">value lost = 1 − 1 / (1 + r)<sup>t</sup></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Discount rate</th><th class="num">6-month delay</th><th class="num">1-year delay</th><th class="num">2-year delay</th></tr></thead>
+    <tbody>
+      <tr><td>9%</td><td class="num">-4%</td><td class="num">-8%</td><td class="num">-16%</td></tr>
+      <tr><td>11%</td><td class="num">-5%</td><td class="num">-10%</td><td class="num">-19%</td></tr>
+      <tr><td>13%</td><td class="num">-6%</td><td class="num">-12%</td><td class="num">-22%</td></tr>
+    </tbody>
+  </table></div>
+  <p>SOX's -12% matches a one-year push-out at 12-13%, not cancellation. Moves of -20% or worse (STRL, MOD, HUT, CIFR) imply a two-year delay or a permanent cut. Hyperscalers' +3-7% on day one priced the FCF benefit of lower capex.</p>
+  <p class="small dim">GLJ's 13 GW Texas figure × $47B/GW ≈ $610B is the size of the Texas pipeline, not a one-year cut; it overstates near-term capex by ~5-10x.</p>
+</section>
+
+<section id="pipeline">
+  <h2>Pipeline breakdown by risk tier and stage</h2>
+  <p>About a third of the 346 GW US pipeline sits in Texas and Georgia, but only ~146 GW of the whole pipeline was likely to be built. The election removes ~16 GW of that (~11%). No published source splits by both political risk and stage, so this combines state trackers with stage base rates.</p>
+
+  <div class="chart" role="img" aria-label="Pipeline GW by tier, under construction versus not started">
+    <div class="chart-title">Texas and Georgia hold 113 GW of pipeline, but 92 GW of it has not started</div>
+    <div class="legend"><span><span class="sw" style="background:var(--accent)"></span>Under construction</span><span><span class="sw" style="background:var(--grey-2);border:1px solid var(--grey)"></span>Not started</span></div>
+<div class="trow"><div class="tlab">A. Pause in force or promised<span class="grp dim">TX, GA</span></div><div class="ttrack"><div class="seg uc" style="width:15.92%" title="Under construction 20.7 GW"></div><div class="seg ns" style="width:70.92%" title="Not started 92.2 GW"></div><span class="tv num">112.9 GW</span></div></div>
+<div class="trow"><div class="tlab">B. New rules or local bans likely<span class="grp dim">OH, NV, NY, NM, WI, MI, ME</span></div><div class="ttrack"><div class="seg uc" style="width:8.92%" title="Under construction 11.6 GW"></div><div class="seg ns" style="width:31.54%" title="Not started 41.0 GW"></div><span class="tv num">52.6 GW</span></div></div>
+<div class="trow"><div class="tlab">C. Watch list<span class="grp dim">PA, VA</span></div><div class="ttrack"><div class="seg uc" style="width:12.62%" title="Under construction 16.4 GW"></div><div class="seg ns" style="width:29.46%" title="Not started 38.3 GW"></div><span class="tv num">54.7 GW</span></div></div>
+<div class="trow"><div class="tlab">D. Rest of US<span class="grp dim"></span></div><div class="ttrack"><div class="seg uc" style="width:16.38%" title="Under construction 21.3 GW"></div><div class="seg ns" style="width:80.38%" title="Not started 104.5 GW"></div><span class="tv num">125.8 GW</span></div></div>
+    <div class="chart-sub">dcmap.us state data via Singularity Research, October 12. Tiers are my own; Tier B partly inferred.</div>
+  </div>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Tier</th><th class="num">Pipeline GW</th><th class="num">Under construction</th><th class="num">Not started</th><th class="num">Operating</th><th class="num">Share</th></tr></thead>
+    <tbody>
+      <tr><td>A. Pause in force or promised: TX, GA</td><td class="num">112.9</td><td class="num">20.7</td><td class="num">92.2</td><td class="num">13.0</td><td class="num">33%</td></tr>
+      <tr><td>B. New rules or local bans likely: OH, NV, NY, NM, WI, MI, ME</td><td class="num">52.6</td><td class="num">11.6</td><td class="num">41.0</td><td class="num">4.8</td><td class="num">15%</td></tr>
+      <tr><td>C. Watch list: PA (3-year moratorium bill), VA</td><td class="num">54.7</td><td class="num">16.4</td><td class="num">38.3</td><td class="num">9.3</td><td class="num">16%</td></tr>
+      <tr><td>D. Rest of US</td><td class="num">125.8</td><td class="num">21.3</td><td class="num">104.5</td><td class="num">21.9</td><td class="num">36%</td></tr>
+      <tr class="total"><td>Total</td><td class="num">346</td><td class="num">70</td><td class="num">276</td><td class="num">49</td><td class="num"></td></tr>
+    </tbody>
+  </table></div>
+  <p class="small">Texas alone: 93.1 GW pipeline (19.5 under construction, 73.6 not started). Cleanview: 56.1 GW of planned capacity in pause states relies on on-site gas, 45 GW of it in Texas. All of OpenAI's planned US pipeline is in pause-governor states, including Project Camellia in Georgia (3.2 GW).</p>
+
+  <h3>The trackers disagree on the total</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Source</th><th>Date</th><th>Total pipeline</th><th>Under construction</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://singularityresearchfund.com/buildout">dcmap.us via Singularity</a></td><td>Oct 12</td><td>346 GW</td><td>70 GW</td><td>Plus 49 GW operating; only ~44% of projects publish power, so a lower bound</td></tr>
+      <tr><td><a href="https://newsletter.cleanview.co/p/newly-elected-governors-could-pause">Cleanview</a></td><td>Nov 4-5</td><td>~387 GW (implied)</td><td>56.7 GW</td><td>158.6 GW (41%) in nine pause states; 69.2 GW (18%) in rule-change states</td></tr>
+      <tr><td>Bernstein</td><td>Nov 3</td><td>433 GW</td><td></td><td>244 GW (56%) politically exposed, pre-election</td></tr>
+      <tr><td><a href="https://nameplatereport.substack.com/p/the-lower-48-data-center-pipeline">Nameplate</a></td><td>Jul 7</td><td>63 GW sample</td><td>19.4 GW</td><td>13.5 GW permitting, 21.5 GW announced or rumored</td></tr>
+      <tr><td><a href="https://www.corleyenergy.com/ercot-large-load-queue.html">ERCOT queue</a></td><td>Jun</td><td>475 GW of requests</td><td>~9 GW approved to energize</td><td>Requests, not projects; many duplicates</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Completion base rates</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Stage</th><th class="num">P(completes)</th><th>Basis</th></tr></thead>
+    <tbody>
+      <tr><td>Under construction</td><td class="num">~87%</td><td>Mostly slip rather than die; Currence found 26% of expected 2025 capacity slipped</td></tr>
+      <tr><td>Permitting</td><td class="num">~50%</td><td>Assumption</td></tr>
+      <tr><td>Announced or rumored</td><td class="num">~15-20%</td><td>Assumption; ERCOT has 475 GW of requests vs ~9 GW approved to energize</td></tr>
+      <tr><td>Not started, blended</td><td class="num">~31%</td><td>~40% permitting / 60% announced, per Nameplate's sample</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="chart" role="img" aria-label="Expected GW completed by tier, after the election, with GW lost">
+    <div class="chart-title">Texas and Georgia account for 12.8 of the ~16 GW of expected completions lost</div>
+    <div class="legend"><span><span class="sw" style="background:var(--grey)"></span>Expected after election</span><span><span class="sw" style="background:var(--neg);opacity:.75"></span>Lost to the election</span></div>
+<div class="trow"><div class="tlab">A. Pause in force or promised<span class="grp dim">TX, GA</span></div><div class="ttrack"><div class="seg kept" style="width:61.09%" title="Expected after election 33.6 GW"></div><div class="seg lost" style="width:23.27%" title="Lost 12.8 GW"></div><span class="tv num">33.6 of 46.4 GW (−12.8)</span></div></div>
+<div class="trow"><div class="tlab">B. New rules or local bans likely<span class="grp dim">OH, NV, NY, NM, WI, MI, ME</span></div><div class="ttrack"><div class="seg kept" style="width:36.18%" title="Expected after election 19.9 GW"></div><div class="seg lost" style="width:5.09%" title="Lost 2.8 GW"></div><span class="tv num">19.9 of 22.7 GW (−2.8)</span></div></div>
+<div class="trow"><div class="tlab">C. Watch list<span class="grp dim">PA, VA</span></div><div class="ttrack"><div class="seg kept" style="width:46.36%" title="Expected after election 25.5 GW"></div><div class="seg lost" style="width:1.09%" title="Lost 0.6 GW"></div><span class="tv num">25.5 of 26.1 GW (−0.6)</span></div></div>
+<div class="trow"><div class="tlab">D. Rest of US<span class="grp dim"></span></div><div class="ttrack"><div class="seg kept" style="width:92.18%" title="Expected after election 50.7 GW"></div><div class="seg lost" style="width:0.00%" title="Lost 0.0 GW"></div><span class="tv num">50.7 of 50.7 GW</span></div></div>
+    <div class="chart-sub">Post-election cuts (assumptions): Tier A under construction ×0.92, not started ×0.60; Tier B ×0.97 / ×0.80; Tier C not started ×0.95; Tier D unchanged. Total 145.9 → 129.7 GW.</div>
+  </div>
+  <p>Sensitivity: a Tier A not-started cut of ×0.4 loses 18.5 GW in Tier A alone; ×0.8 loses 7.1 GW. National range ~10-22 GW. 16 GW × ~$47B/GW ≈ $750B of project value over several years; if half relocates, ~$380B net.</p>
+  <div class="callout">The swing factor is the 20.7 GW already under construction in Texas and Georgia. If Hinojosa's order covers started projects, 2027-28 deliveries take a much larger hit. Hut 8, Cipher, Galaxy (Helios, leased to CoreWeave) and IREN (2 GW Sweetwater) hold those sites.</div>
+</section>
+
+<section id="levers">
+  <h2>Valuation levers by group</h2>
+  <p>Where a company sits in the build sequence, how location-bound its revenue is, and how levered it is decide how far it moves on a buildout headline.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Group</th><th>Names</th><th>Main valuation lever</th><th>How a slowdown hits it</th><th>Exposure</th></tr></thead>
+    <tbody>
+      <tr><td>Texas-heavy developers, ex-miners</td><td class="mono">HUT, CIFR, IREN, APLD, GLXY</td><td>Equity is a residual on project debt</td><td>Delay = interest with no rent; lease starts slip; leverage magnifies it. HUT has $19.6B of ~$26.6B lease value at Beacon Point, TX.</td><td><span class="pill neg">Highest negative</span></td></tr>
+      <tr><td>Site work, MEP contractors</td><td class="mono">STRL, FIX, EME, PWR</td><td>EV/EBITDA on order growth</td><td>Permit freeze stops groundbreaking, so orders drop first; backlog cushions 2-4 quarters</td><td><span class="pill neg">High negative</span></td></tr>
+      <tr><td>On-site gas</td><td class="mono">INNIO, SEI, BE</td><td>Contracts tied to bypassing grid queues</td><td>Texas pause also covers the air permits on-site generation needs</td><td><span class="pill neg">High negative</span></td></tr>
+      <tr><td>Neoclouds</td><td class="mono">CRWV, NBIS</td><td>EV/backlog, credit-spread sensitive</td><td>Depend on third-party shells; CRWV CDS 1,268 bp</td><td><span class="pill neg">High negative</span></td></tr>
+      <tr><td>Power and cooling gear</td><td class="mono">VRT, ETN, MOD, GEV</td><td>Forward P/E on order growth (VRT 24x vs 55x May peak)</td><td>Backlog ($197B at GEV) protects revenue; order growth sets the multiple</td><td><span class="pill neg">Medium-high negative</span></td></tr>
+      <tr><td>Merchant power</td><td class="mono">VST, CEG, NRG, TLN</td><td>Forward power price × uncontracted output + new PPA premium</td><td>Lower ERCOT load growth lowers the forward curve; VST most Texas-heavy (KeyBanc downgrade). CEG is PJM nuclear, where scarcity helps.</td><td><span class="pill neg">High (VST)</span> <span class="pill mix">Mixed (CEG)</span></td></tr>
+      <tr><td>Accelerators, networking</td><td class="mono">NVDA, AMD, AVGO, MRVL, ANET</td><td>P/E on 2027-28 EPS</td><td>Redirected rather than lost while supply is capped; hit comes through the multiple</td><td><span class="pill neg">Medium negative</span></td></tr>
+      <tr><td>Regulated utilities</td><td class="mono">SO, DUK, AEP, D</td><td>Rate-base growth × allowed ROE</td><td>Georgia pause trims Georgia Power's capex plan; large-load tariffs are neutral if load still arrives</td><td><span class="pill mix">Mild negative</span></td></tr>
+      <tr><td>Hyperscalers</td><td class="mono">MSFT, AMZN, GOOGL, META, ORCL</td><td>FCF yield</td><td>Lower capex lifts near-term FCF; less capacity caps cloud growth</td><td><span class="pill mix">Mixed</span></td></tr>
+      <tr><td>Owners of energized capacity</td><td class="mono">EQIX, DLR</td><td>AFFO multiple on rent growth</td><td>Scarcer new supply supports renewal pricing</td><td><span class="pill pos">Mild positive</span></td></tr>
+      <tr><td>Renewables</td><td class="mono">FSLR, NXT, ENPH, RUN</td><td>Policy-driven demand</td><td>Rallied on a Democratic Congress; veto caps federal change until 2029</td><td><span class="pill pos">Mild positive</span></td></tr>
+      <tr><td>Memory buyers</td><td class="mono">AAPL, PC and phone makers</td><td>Gross margin vs DRAM/NAND prices</td><td>Slower AI build eases memory tightness</td><td><span class="pill pos">Mild positive</span></td></tr>
+    </tbody>
+  </table></div>
+  <h3>The eight levers</h3>
+  <ol class="levers">
+    <li><strong>Delay or cancellation.</strong> A one-year delay costs ~10% at an 11% discount rate; cancellation hits terminal value.</li>
+    <li><strong>Position in the build sequence.</strong> Site work and power gear lose orders 12-24 months before GPUs would be installed.</li>
+    <li><strong>Fungibility.</strong> Chips can ship to another site; a Texas substation contract cannot.</li>
+    <li><strong>Geographic concentration</strong> in Texas or Georgia.</li>
+    <li><strong>Leverage and financing.</strong> A small rent delay becomes a large equity loss.</li>
+    <li><strong>Orders versus backlog.</strong> Backlog protects revenue, but the multiple follows orders.</li>
+    <li><strong>Scarcity value</strong> of energized MW and grid-connected generation, the main source of winners.</li>
+    <li><strong>Who pays for grid upgrades.</strong> Developers absorbing costs is a margin story; regulators blocking projects is a volume story.</li>
+  </ol>
+</section>
+
+<section id="watch">
+  <h2>What to watch</h2>
+  <ul class="check">
+    <li>Whether Hinojosa's order exempts projects already under construction (largest single swing factor)</li>
+    <li>Whether the ERCOT audit ends in December with the freeze lifted before January 19</li>
+    <li>Bottoms' Georgia order: scope, duration, treatment of approved projects; Project Camellia (3.2 GW) vote November 17</li>
+    <li>Texas legislative session in January: tax-break repeal, large-load tariffs</li>
+    <li>Hyperscaler Q4 calls (late January): same capex total with a new state mix supports "relocate, not cancel"</li>
+    <li>New local bans in relocation states: Clarksville, AR bond votes December 1; Mandan, ND December 15; Ohio statewide amendment aimed at November 2027</li>
+    <li>VST Q3 (November 6) and CEG Q3 (November 9) commentary on ERCOT and PJM load</li>
+    <li>Vertiv's February report and first 2027 guide; GE Vernova orders</li>
+    <li>CoreWeave and Hut 8 disclosures on Texas site timing; CRWV CDS</li>
+  </ul>
+  <h3>Caveats</h3>
+  <ul>
+    <li>No source gives a formal national capex cut. UBS's 30% is capacity "at risk," not a cancellation forecast.</li>
+    <li>Bernstein's 244 GW was published before the results and includes many speculative projects.</li>
+    <li>Trackers disagree on the total (346 vs ~387 vs 433 GW). The $/GW split, completion rates and post-election cuts are my assumptions. Moving $/GW from $47B to $40B or $60B changes Method 2 by -15% / +28%.</li>
+    <li>Sources disagree on control of the Texas legislature.</li>
+    <li>Part of the Nov 5 selloff predates the election.</li>
+  </ul>
+</section>
+
+<section id="sources">
+  <h2>Sources</h2>
+  <ul class="small">
+    <li><a href="https://www.cbsnews.com/news/midterm-election-results-data-center-buildout-artificial-intelligence-texas/">CBS News: Midterm elections could zap the data center buildout</a></li>
+    <li><a href="https://statecapitallobbyist.com/artificial-intelligence-ai/data-centers/data-centers-on-the-ballot-where-things-stand/">State Capital Lobbyist: data centers on the ballot</a></li>
+    <li><a href="https://www.texastribune.org/2026/11/04/data-center-texas-pause-gina-hinojosa-governor-policies/">Texas Tribune: Under Hinojosa, Texas approvals could stay paused</a></li>
+    <li><a href="https://newsletter.cleanview.co/p/newly-elected-governors-could-pause">Cleanview: Newly elected governors could pause 41% of planned data centers</a></li>
+    <li><a href="https://singularityresearchfund.com/buildout">Singularity Research: US buildout model by state (dcmap.us data)</a></li>
+    <li><a href="https://nameplatereport.substack.com/p/the-lower-48-data-center-pipeline">Nameplate: The Lower 48 data-center pipeline</a></li>
+    <li><a href="https://www.currence.ai/blog/data-center-outlook">Currence: Data center outlook Q1 2026</a></li>
+    <li><a href="https://www.corleyenergy.com/ercot-large-load-queue.html">Corley Energy: ERCOT large-load queue</a></li>
+    <li><a href="https://stocktitan.net/articles/ai-data-center-stocks-fall-texas-vote-november-4-2026">StockTitan: AI data center stocks fall after Texas vote</a></li>
+    <li><a href="https://www.investing.com/news/stock-market-news/ai-datacenter-stocks-slip-as-democratic-sweep-clouds-expansion-plans-5003196">Reuters via Investing.com: $2.5T wiped off Nasdaq</a></li>
+    <li><a href="https://www.tikr.com/blog/vertiv-sinks-9-ge-vernova-down-8-as-democrats-win-congress-reviving-data-center-fears">TIKR: Vertiv, GE Vernova fall as Democrats win Congress</a></li>
+    <li><a href="https://www.tradingview.com/news/stocktwits:62f969db1094b:0-vst-ceg-stocks-drop-as-election-outcome-hits-merchant-power-generators/">Stocktwits via TradingView: VST, CEG drop</a></li>
+    <li><a href="https://finance.yahoo.com/technology/ai/articles/steve-weiss-says-midterms-just-000914700.html">Yahoo Finance: Steve Weiss on the midterms and AI spending</a></li>
+    <li><a href="https://finimize.com/content/ubs-flags-a-post-midterms-speed-bump-for-data-centers">Finimize: UBS post-midterms speed bump</a></li>
+    <li><a href="https://247wallst.com/investing/2026/11/04/texas-blue-wave-could-threaten-27-of-planned-u-s-data-center-power-heres-what-it-means-for-coreweave-iren-nebius-and-other-neocloud-stocks/">24/7 Wall St: Texas blue wave and neocloud exposure</a></li>
+    <li><a href="https://www.yieldtheory.app/research/hyperscaler-capex-2027-forecast">Yield Theory: Hyperscaler capex 2027 forecast</a></li>
+  </ul>
+</section>
+
+<footer>Companion to the wiki page <span class="mono">investing-fundamentals/company-analyses/themes/midterms-data-center-capex-sizing-2026-11.md</span>. Personal research notes, not investment advice.</footer>
+</div>
+</body>
+</html>

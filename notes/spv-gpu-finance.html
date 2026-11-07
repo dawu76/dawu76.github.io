@@ -1,0 +1,637 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SPVs and GPU Finance</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Same design tokens as crwv-credit-squeeze-20261028.html so the two pages read as a set. */
+:root {
+  --bg: #f3f5f7; --surface: #ffffff; --ink: #15202b; --muted: #5a6875; --rule: #d5dce3;
+  --accent: #1e5b86; --accent-soft: #e2ecf4;
+  --risk: #b3312a; --risk-soft: #f6e3e1; --warn: #a86a12; --warn-soft: #f7ecd9;
+  --ok: #2c7655; --ok-soft: #e0efe7; --neutral-bar: #9aa8b5;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11171d; --surface: #182129; --ink: #e3e9ef; --muted: #98a6b3; --rule: #2c3944;
+    --accent: #7db4dc; --accent-soft: #1d2d3a; --risk: #ec7a70; --risk-soft: #3a2222; --warn: #e0a64e; --warn-soft: #3a2e1c;
+    --ok: #6cc29a; --ok-soft: #1c3329; --neutral-bar: #5f6f7d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11171d; --surface: #182129; --ink: #e3e9ef; --muted: #98a6b3; --rule: #2c3944;
+  --accent: #7db4dc; --accent-soft: #1d2d3a; --risk: #ec7a70; --risk-soft: #3a2222; --warn: #e0a64e; --warn-soft: #3a2e1c;
+  --ok: #6cc29a; --ok-soft: #1c3329; --neutral-bar: #5f6f7d; color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+.page { max-width: 980px; margin: 0 auto; padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 56px; }
+.prose { max-width: 68ch; }
+h1, h2, h3 { font-family: var(--display); font-weight: 650; text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(2rem, 4.5vw, 2.9rem); letter-spacing: -0.01em; }
+h2 { font-size: 1.6rem; }
+h3 { font-size: 1.15rem; font-weight: 600; }
+p { margin: 0; }
+section { display: grid; gap: 18px; min-width: 0; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 1.15rem; }
+header { display: grid; gap: 16px; }
+.verdict { border-left: 4px solid var(--accent); background: var(--surface); padding: 18px 22px; display: grid; gap: 10px; max-width: 74ch; }
+.verdict strong { color: var(--accent); }
+.quote { border-left: 3px solid var(--rule); padding-left: 14px; color: var(--muted); font-style: italic; max-width: 74ch; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.cell { background: var(--surface); border: 1px solid var(--rule); padding: 16px 18px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.cell .tag { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.tag.risk { color: var(--risk); } .tag.warn { color: var(--warn); } .tag.ok { color: var(--ok); } .tag.accent { color: var(--accent); }
+.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; background: var(--surface); }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.wide { min-width: 680px; }
+.pill { display: inline-block; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 3px; white-space: nowrap; }
+.pill.no { background: var(--risk-soft); color: var(--risk); }
+.pill.mixed { background: var(--warn-soft); color: var(--warn); }
+.pill.yes { background: var(--ok-soft); color: var(--ok); }
+figure { margin: 0; background: var(--surface); border: 1px solid var(--rule); padding: 20px 18px 16px; display: grid; gap: 12px; min-width: 0; }
+figcaption { font-size: 0.85rem; color: var(--muted); max-width: 80ch; }
+.fig-title { font-family: var(--display); font-weight: 650; font-size: 1.1rem; }
+svg { display: block; width: 100%; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 13px; }
+svg .mono { font-family: var(--mono); }
+svg .small { font-size: 11.5px; }
+svg .muted { fill: var(--muted); }
+svg .risk { fill: var(--risk); } svg .ok { fill: var(--ok); } svg .warn { fill: var(--warn); } svg .accent { fill: var(--accent); }
+svg .bold { font-weight: 600; }
+svg .box { fill: var(--surface); stroke: var(--rule); stroke-width: 1.5; }
+svg .box-spv { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2.5; }
+svg .box-dash { fill: var(--surface); stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+svg .money { stroke: var(--ok); stroke-width: 2; fill: none; }
+svg .right { stroke: var(--accent); stroke-width: 1.8; fill: none; stroke-dasharray: 6 4; }
+svg .grid { stroke: var(--rule); stroke-width: 1; }
+.chart-wide { min-width: 720px; }
+ul.plain, ol.plain { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.two > * { min-width: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: 0.85rem; color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 26px; height: 0; vertical-align: middle; margin-right: 6px; }
+.legend .l-money::before { border-top: 2.5px solid var(--ok); }
+.legend .l-right::before { border-top: 2.5px dashed var(--accent); }
+code, .wl { font-family: var(--mono); font-size: 0.85em; color: var(--accent); }
+.sources { font-size: 0.85rem; color: var(--muted); display: grid; gap: 6px; }
+
+/* Side table of contents: sticky column on wide screens, collapsible box above the page on narrow ones. */
+html { scroll-behavior: smooth; }
+section, header { scroll-margin-top: 20px; }
+.layout { max-width: 1260px; margin: 0 auto; }
+.toc { padding: 20px max(16px, env(safe-area-inset-left, 0px)) 0; font-size: 0.88rem; }
+.toc details { background: var(--surface); border: 1px solid var(--rule); padding: 10px 14px; }
+.toc summary { cursor: pointer; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+.toc ol { list-style: none; margin: 10px 0 2px; padding: 0; display: grid; gap: 2px; }
+.toc ol ol { margin: 2px 0 4px; padding-left: 14px; }
+.toc a { display: block; color: var(--muted); text-decoration: none; padding: 3px 8px; border-left: 2px solid transparent; line-height: 1.35; }
+.toc a:hover { color: var(--ink); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); }
+.toc .num { font-family: var(--mono); font-size: 0.78rem; margin-right: 6px; }
+@media (min-width: 1180px) {
+  .layout { display: grid; grid-template-columns: 220px minmax(0, 980px); gap: 28px; padding-left: 16px; }
+  .layout .page { margin: 0; }
+  .toc { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; padding: 40px 0 24px; }
+  .toc details { background: none; border: 0; padding: 0; }
+  .toc summary { pointer-events: none; list-style: none; }
+  .toc summary::-webkit-details-marker { display: none; }
+}
+@media print { .toc { display: none; } }
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc" aria-label="Table of contents">
+  <details open>
+    <summary>Contents</summary>
+    <ol>
+      <li><a href="#top">Overview</a></li>
+      <li><a href="#structure">Who pays whom</a></li>
+      <li><a href="#s1"><span class="num">1</span>Bankruptcy-remote</a></li>
+      <li><a href="#s2"><span class="num">2</span>Borrowing costs</a></li>
+      <li><a href="#s3"><span class="num">3</span>Cash waterfall and equity</a></li>
+      <li><a href="#s4"><span class="num">4</span>SPVs in history</a></li>
+      <li><a href="#s5"><span class="num">5</span>Where SPVs hold and break</a></li>
+      <li><a href="#s6-1"><span class="num">6</span>GPU clusters</a>
+        <ol>
+          <li><a href="#s6-1"><span class="num">6.1</span>No repossession</a></li>
+          <li><a href="#s6-2"><span class="num">6.2</span>Depreciation speed</a></li>
+          <li><a href="#s6-3"><span class="num">6.3</span>Contract repays the debt</a></li>
+          <li><a href="#s6-4"><span class="num">6.4</span>Patterns and what to watch</a></li>
+        </ol>
+      </li>
+      <li><a href="#sources">Sources</a></li>
+    </ol>
+  </details>
+</nav>
+<div class="page">
+
+<header id="top">
+  <div class="eyebrow">AI credit · project finance · 31 Oct 2026</div>
+  <h1>SPVs in financial history and GPU project finance</h1>
+  <p class="lede prose">How special-purpose vehicles (SPVs) work, why neoclouds such as CoreWeave put GPU clusters in them, and what 150 years of SPV use in other industries says about where the structure holds and where it breaks.</p>
+  <p class="quote">"The financing looks remarkably like aircraft ABS. Wall Street is financing GPU clusters through bankruptcy-remote SPVs, often using 70-80% LTV structures supported by multi-year contracts. The contracts make the cash flows financeable, but the equity highly leveraged and sensitive to assumptions."</p>
+  <div class="verdict">
+    <p><strong>In short: rail and aircraft finance are cheap because the law and the asset both protect the lender. GPU finance is cheap only when the contract does that job, and expensive when the lender has to rely on the GPUs.</strong></p>
+    <p>The GPU figures come from the wiki digests and podcast pages listed at the end. The historical cases are from general financial history, and their figures are approximate. The $1B cluster used in the charts is an illustration in round numbers, not a specific deal.</p>
+  </div>
+</header>
+
+<!-- ============ PARTIES DIAGRAM ============ -->
+<section id="structure">
+  <div class="eyebrow">The structure</div>
+  <h2>Who pays whom, and who holds which rights</h2>
+  <p class="prose">An SPV is a separate company that owns one asset: here, one GPU cluster plus its customer contract. Lenders lend to the SPV against that asset and contract, customer payments go into a lender-controlled account, debt service is paid first, and what remains goes up to the sponsor as equity. The sponsor usually stays on as operator under a management agreement.</p>
+  <figure>
+    <div class="fig-title">A typical contract-backed GPU cluster SPV</div>
+    <div class="legend"><span class="l-money">Money</span><span class="l-right">Rights, claims, services</span></div>
+    <div class="scroll">
+    <svg class="chart-wide" viewBox="0 0 1000 600" role="img" aria-label="Diagram of the parties around a GPU cluster SPV: customer, frontier lab, sponsor, senior lenders, parent bondholders, Nvidia and data center landlord, with money flows and rights.">
+      <defs>
+        <marker id="am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill: var(--ok)"/></marker>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill: var(--accent)"/></marker>
+      </defs>
+
+      <!-- Customer -->
+      <rect class="box" x="380" y="16" width="240" height="74" rx="4"/>
+      <text x="500" y="44" text-anchor="middle" class="bold">Customer / offtaker</text>
+      <text x="500" y="64" text-anchor="middle" class="small muted">Meta, Microsoft (investment grade)</text>
+      <text x="500" y="80" text-anchor="middle" class="small muted">take-or-pay contract</text>
+
+      <!-- Lab -->
+      <rect class="box-dash" x="770" y="16" width="220" height="74" rx="4"/>
+      <text x="880" y="44" text-anchor="middle" class="bold">Frontier lab</text>
+      <text x="880" y="64" text-anchor="middle" class="small muted">OpenAI, Anthropic (not rated)</text>
+      <text x="880" y="80" text-anchor="middle" class="small muted">when the customer resells</text>
+      <line class="money" x1="768" y1="46" x2="624" y2="46" marker-end="url(#am)"/>
+      <text x="696" y="38" text-anchor="middle" class="small">pays for capacity</text>
+      <line class="right" x1="624" y1="68" x2="768" y2="68" marker-end="url(#ar)"/>
+      <text x="696" y="84" text-anchor="middle" class="small">resold capacity</text>
+
+      <!-- SPV -->
+      <rect class="box-spv" x="370" y="210" width="260" height="150" rx="6"/>
+      <text x="500" y="238" text-anchor="middle" class="bold accent">Cluster SPV</text>
+      <text x="500" y="256" text-anchor="middle" class="small">bankruptcy-remote</text>
+      <text x="500" y="280" text-anchor="middle" class="small">owns GPUs + customer contract</text>
+      <text x="500" y="298" text-anchor="middle" class="small">collection account (lender-controlled)</text>
+      <text x="500" y="316" text-anchor="middle" class="small">independent director</text>
+      <text x="500" y="334" text-anchor="middle" class="small">separate books, no other debt</text>
+
+      <!-- Customer <-> SPV -->
+      <line class="money" x1="460" y1="92" x2="460" y2="206" marker-end="url(#am)"/>
+      <text x="452" y="140" text-anchor="end" class="small">take-or-pay fees</text>
+      <text x="452" y="156" text-anchor="end" class="small">(15-25% often prepaid)</text>
+      <line class="right" x1="540" y1="206" x2="540" y2="92" marker-end="url(#ar)"/>
+      <text x="548" y="140" class="small">dedicated capacity;</text>
+      <text x="548" y="156" class="small">step-in rights</text>
+
+      <!-- Sponsor -->
+      <rect class="box" x="10" y="220" width="190" height="130" rx="4"/>
+      <text x="105" y="250" text-anchor="middle" class="bold">Sponsor / operator</text>
+      <text x="105" y="270" text-anchor="middle" class="small muted">CoreWeave parent</text>
+      <text x="105" y="290" text-anchor="middle" class="small muted">owns 100% of SPV equity</text>
+      <text x="105" y="308" text-anchor="middle" class="small muted">runs the cluster</text>
+      <text x="105" y="326" text-anchor="middle" class="small muted">rated B+ / Ba3 / BB−</text>
+
+      <line class="money" x1="202" y1="245" x2="366" y2="245" marker-end="url(#am)"/>
+      <text x="284" y="238" text-anchor="middle" class="small">equity, 20-30%</text>
+      <line class="money" x1="366" y1="285" x2="202" y2="285" marker-end="url(#am)"/>
+      <text x="284" y="278" text-anchor="middle" class="small">fee + leftover cash,</text>
+      <text x="284" y="301" text-anchor="middle" class="small">only after tests pass</text>
+      <line class="right" x1="202" y1="330" x2="366" y2="330" marker-end="url(#ar)"/>
+      <text x="284" y="323" text-anchor="middle" class="small">operates the cluster</text>
+
+      <!-- Lenders -->
+      <rect class="box" x="800" y="220" width="190" height="130" rx="4"/>
+      <text x="895" y="250" text-anchor="middle" class="bold">Senior secured lenders</text>
+      <text x="895" y="270" text-anchor="middle" class="small muted">banks, private credit, ABS</text>
+      <text x="895" y="290" text-anchor="middle" class="small muted">priced off the customer:</text>
+      <text x="895" y="308" text-anchor="middle" class="small muted">e.g. SOFR + 225bp, A3</text>
+      <text x="895" y="326" text-anchor="middle" class="small muted">covenant e.g. 1.35x DSCR</text>
+
+      <line class="money" x1="798" y1="245" x2="634" y2="245" marker-end="url(#am)"/>
+      <text x="716" y="238" text-anchor="middle" class="small">loan, 70-80% LTV</text>
+      <line class="money" x1="634" y1="285" x2="798" y2="285" marker-end="url(#am)"/>
+      <text x="716" y="278" text-anchor="middle" class="small">debt service, paid first</text>
+      <line class="right" x1="798" y1="330" x2="634" y2="330" marker-end="url(#ar)"/>
+      <text x="716" y="323" text-anchor="middle" class="small">first lien: GPUs, contract,</text>
+      <text x="716" y="346" text-anchor="middle" class="small">accounts</text>
+
+      <!-- Bondholders -->
+      <rect class="box" x="10" y="460" width="190" height="110" rx="4"/>
+      <text x="105" y="488" text-anchor="middle" class="bold">Parent bondholders</text>
+      <text x="105" y="508" text-anchor="middle" class="small muted">unsecured, ~15% yield</text>
+      <text x="105" y="526" text-anchor="middle" class="small risk">claim on the parent only;</text>
+      <text x="105" y="544" text-anchor="middle" class="small risk">SPV lenders come first</text>
+      <text x="105" y="560" text-anchor="middle" class="small muted">S&amp;P recovery 10-30¢</text>
+      <line class="money" x1="105" y1="458" x2="105" y2="354" marker-end="url(#am)"/>
+      <text x="113" y="405" class="small">unsecured loans</text>
+
+      <!-- Nvidia -->
+      <rect class="box" x="400" y="460" width="200" height="110" rx="4"/>
+      <text x="500" y="488" text-anchor="middle" class="bold">Nvidia</text>
+      <text x="500" y="508" text-anchor="middle" class="small muted">chip supplier</text>
+      <text x="500" y="526" text-anchor="middle" class="small muted">sometimes a backstop for</text>
+      <text x="500" y="544" text-anchor="middle" class="small muted">non-IG deals</text>
+      <line class="money" x1="460" y1="364" x2="460" y2="456" marker-end="url(#am)"/>
+      <text x="452" y="408" text-anchor="end" class="small">pays for GPUs</text>
+      <line class="right" x1="540" y1="456" x2="540" y2="364" marker-end="url(#ar)"/>
+      <text x="548" y="400" class="small">GPUs; rent-back floor or</text>
+      <text x="548" y="416" class="small">residual-value guarantee</text>
+      <text x="548" y="432" class="small">(some deals)</text>
+
+      <!-- Landlord -->
+      <rect class="box" x="800" y="460" width="190" height="110" rx="4"/>
+      <text x="895" y="488" text-anchor="middle" class="bold">Data center landlord</text>
+      <text x="895" y="508" text-anchor="middle" class="small muted">space, power, cooling</text>
+      <text x="895" y="526" text-anchor="middle" class="small muted">e.g. Applied Digital leases</text>
+      <text x="895" y="544" text-anchor="middle" class="small muted">to CoreWeave</text>
+      <line class="money" x1="632" y1="352" x2="832" y2="456" marker-end="url(#am)"/>
+      <text x="770" y="396" text-anchor="middle" class="small">rent, power</text>
+      <line class="right" x1="812" y1="458" x2="636" y2="366.5" marker-end="url(#ar)"/>
+      <text x="716" y="454" text-anchor="middle" class="small">hosts the racks</text>
+    </svg>
+    </div>
+    <figcaption>Simplified. Real deals add trustees, account banks, hedging counterparties and reserve accounts, and some put a hyperscaler between the SPV and a non-rated lab (the Microsoft–Nscale–OpenAI structure). Pricing labels come from CoreWeave's March $8.5B loan and its $2.6B facility; parent ratings and bond yields from <a href="coreweave-credit.html">crwv-credit-squeeze-20261028</a>.</figcaption>
+  </figure>
+
+  <div class="grid3">
+    <div class="cell"><span class="tag accent">The neocloud gets</span>
+      <ul class="plain">
+        <li><strong>Debt priced off the customer.</strong> About 6-7% inside a ring-fenced SPV with a good contract against about 15% on its own name.</li>
+        <li><strong>Growth beyond its balance sheet.</strong> CoreWeave spent $14.1B on infrastructure in H1 2026 against $3.7B of operating cash. At 70-80% LTV, each contract largely finances its own cluster.</li>
+        <li><strong>Containment.</strong> Debt is non-recourse or limited-recourse. A cancelled contract or a late site costs that SPV, not the company, and covenants apply per SPV.</li>
+      </ul></div>
+    <div class="cell"><span class="tag accent">The hyperscaler or lab gets</span>
+      <ul class="plain">
+        <li><strong>Capacity without owning depreciating hardware.</strong> Many deals are booked as service contracts (ASC 606) rather than leases (ASC 842), so they stay off the balance sheet. Obsolescence and residual-value risk stay with the SPV's equity and lenders.</li>
+        <li><strong>Protection from the supplier failing.</strong> Customers have prepaid 15-25% of contract value. Inside a bankruptcy-remote SPV, the cluster and the prepayment sit outside the neocloud's bankruptcy estate, often with step-in rights.</li>
+        <li><strong>Speed.</strong> A neocloud with land, power and a financing template delivers faster than a self-build.</li>
+      </ul></div>
+    <div class="cell"><span class="tag accent">Lenders get</span>
+      <ul class="plain">
+        <li>One asset, one contract and a cash waterfall with no competing creditors.</li>
+        <li>SemiAnalysis prices the residual execution risk at about 100bp over the customer's credit.</li>
+        <li><strong>When the customer isn't investment grade</strong> (OpenAI, Anthropic), a hyperscaler or Nvidia stands in the middle: rent-back floors and residual-value guarantees ("balance sheet as a service").</li>
+      </ul></div>
+  </div>
+</section>
+
+<!-- ============ BANKRUPTCY-REMOTE ============ -->
+<section id="s1">
+  <div class="eyebrow">Section 1</div>
+  <h2>What "bankruptcy-remote" means</h2>
+  <div class="two">
+    <div class="cell"><span class="tag ok">Unlikely to fail on its own</span>
+      <p>Its charter limits it to one business with no other debt. Separateness covenants require its own books, bank accounts and name, with no commingled cash and no guarantees of the sponsor's debts. An independent director must approve any voluntary bankruptcy filing, so the sponsor can't drag it into a filing.</p></div>
+    <div class="cell"><span class="tag ok">Unlikely to be pulled into the sponsor's bankruptcy</span>
+      <p>Assets move in by a "true sale," not a disguised loan, and law firms give non-consolidation opinions that a court would not merge the SPV with the sponsor ("substantive consolidation").</p></div>
+  </div>
+  <p class="prose">"Remote" is not "proof": see General Growth Properties in the history section.</p>
+</section>
+
+<!-- ============ PRICING TABLE ============ -->
+<section id="s2">
+  <div class="eyebrow">Section 2</div>
+  <h2>Same company, very different borrowing costs</h2>
+  <p class="prose">The SPV moves the deal's credit from the neocloud's own (sub-investment-grade) name to the customer's contract plus the neocloud's ability to deliver it.</p>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>CoreWeave borrowing</th><th>Price</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td>$8.5B loan backed by specific customer contracts</td><td class="num">Benchmark + 2.25%</td><td>10-02 digest §4</td></tr>
+      <tr><td>Project loan for Meta capacity</td><td class="num">SOFR + 225bp vs. Meta's own ~97bp 5-year spread</td><td>10-09 digest §4</td></tr>
+      <tr><td>$2.6B facility, ~5-year debt on ~3-year contracts, 1.35x DSCR</td><td class="num">Benchmark + 5.5%</td><td>10-02 digest §4</td></tr>
+      <tr><td>Unsecured notes (parent credit)</td><td class="num">9.625% coupon; 2031-32 notes yielding 14.8-16%; S&amp;P recovery 10-30 cents</td><td>10-02 §4; CoreWeave credit page</td></tr>
+      <tr><td>IREN non-recourse loan tied to a Microsoft contract (peer)</td><td class="num">5.96%</td><td>CoreWeave credit page</td></tr>
+    </tbody>
+  </table></div>
+  <div class="cell"><span class="tag risk">What it costs</span>
+    <ul class="plain">
+      <li><strong>Structural subordination.</strong> The best assets are pledged to SPV lenders, so parent-level unsecured bondholders recover less (S&amp;P's 10-30 cents).</li>
+      <li><strong>Trapped cash.</strong> Cash moves up only after debt service and coverage tests.</li>
+      <li><strong>Less flexibility.</strong> Pledged GPUs can't easily move to a better-paying customer.</li>
+      <li><strong>Risk delayed, not removed.</strong> When debt outlasts the contract, the lender is betting on renewal pricing, and pays for it (+5.5% vs. +2.25%).</li>
+    </ul></div>
+</section>
+
+<!-- ============ WATERFALL + EQUITY ============ -->
+<section id="s3">
+  <div class="eyebrow">Section 3</div>
+  <h2>Where a year of customer payments goes</h2>
+  <p class="prose">Illustrative $1B cluster at 75% LTV: $750M of debt at about 7%, amortizing over 5 years, costs about $183M a year. A 5-year take-or-pay contract pays $350M a year, and operating costs take $100M. Cash is paid out in a fixed order, and the sponsor's equity is last.</p>
+  <figure>
+    <div class="fig-title">The cash waterfall, base case and with rent 30% lower</div>
+    <div class="scroll">
+    <svg class="chart-wide" viewBox="0 0 900 300" role="img" aria-label="Stacked bars: base case $350M splits into $100M operating costs, $183M debt service and $67M to equity; with rent 30% lower, $245M covers $100M operating costs and $145M of the $183M debt service, a $38M shortfall.">
+      <!-- axis scale: $1M = 1.6px, origin x=220 -->
+      <line class="grid" x1="220" y1="40" x2="220" y2="220"/>
+      <line class="grid" x1="380" y1="40" x2="380" y2="220"/>
+      <line class="grid" x1="540" y1="40" x2="540" y2="220"/>
+      <line class="grid" x1="700" y1="40" x2="700" y2="220"/>
+      <text x="220" y="238" text-anchor="middle" class="small mono muted">$0</text>
+      <text x="380" y="238" text-anchor="middle" class="small mono muted">$100M</text>
+      <text x="540" y="238" text-anchor="middle" class="small mono muted">$200M</text>
+      <text x="700" y="238" text-anchor="middle" class="small mono muted">$300M</text>
+
+      <text x="210" y="82" text-anchor="end" class="bold">Base case</text>
+      <text x="210" y="100" text-anchor="end" class="small muted">$350M a year</text>
+      <rect x="220" y="62" width="160" height="44" style="fill: var(--neutral-bar)"/>
+      <text x="300" y="89" text-anchor="middle" class="small">1 · operating costs $100M</text>
+      <rect x="380" y="62" width="292.6" height="44" style="fill: var(--accent)"/>
+      <text x="526" y="89" text-anchor="middle" class="small" style="fill: var(--surface)">2 · debt service $183M (paid first)</text>
+      <rect x="672.6" y="62" width="107.4" height="44" style="fill: var(--ok)"/>
+      <text x="726" y="89" text-anchor="middle" class="small" style="fill: var(--surface)">3 · equity $67M</text>
+      <text x="790" y="80" class="small mono">coverage 1.37x</text>
+      <text x="790" y="96" class="small ok">test passes</text>
+
+      <text x="210" y="162" text-anchor="end" class="bold">Rent 30% lower</text>
+      <text x="210" y="180" text-anchor="end" class="small muted">$245M a year</text>
+      <rect x="220" y="142" width="160" height="44" style="fill: var(--neutral-bar)"/>
+      <text x="300" y="169" text-anchor="middle" class="small">operating costs $100M</text>
+      <rect x="380" y="142" width="232" height="44" style="fill: var(--accent)"/>
+      <text x="496" y="169" text-anchor="middle" class="small" style="fill: var(--surface)">$145M toward debt service</text>
+      <rect x="612" y="142" width="60.6" height="44" style="fill: var(--risk-soft); stroke: var(--risk); stroke-width: 1.5; stroke-dasharray: 4 3"/>
+      <text x="642" y="169" text-anchor="middle" class="small risk">−$38M</text>
+      <text x="690" y="160" class="small mono">coverage 0.79x</text>
+      <text x="690" y="176" class="small risk">equity gets $0; cash trapped</text>
+      <text x="690" y="192" class="small risk">or reserves drawn</text>
+      <text x="20" y="268" class="small muted">Order of payment: 1 operating costs (power, space, operator fee) → 2 senior debt service →</text>
+      <text x="20" y="286" class="small muted">coverage test (e.g. 1.35x) → reserves → 3 distributions to the sponsor.</text>
+    </svg>
+    </div>
+    <figcaption>Illustrative round numbers, not a specific deal. The 1.35x covenant matches CoreWeave's $2.6B facility. A failed coverage test typically traps cash in the SPV or sweeps it to pay down debt early, so the sponsor receives nothing until the test passes again.</figcaption>
+  </figure>
+
+  <div class="two">
+    <figure>
+      <div class="fig-title">Equity takes value losses first</div>
+      <svg viewBox="0 0 420 190" role="img" aria-label="At 75% LTV a $100 cluster has $25 of equity; a 10% value fall leaves $15, a 25% fall leaves $0.">
+        <text x="10" y="44" class="small">Value unchanged</text>
+        <rect x="150" y="28" width="200" height="24" style="fill: var(--ok)"/>
+        <text x="358" y="45" class="small mono">$25</text>
+        <text x="10" y="94" class="small">Value −10%</text>
+        <rect x="150" y="78" width="120" height="24" style="fill: var(--warn)"/>
+        <text x="278" y="95" class="small mono">$15 (−40%)</text>
+        <text x="10" y="144" class="small">Value −25%</text>
+        <line x1="150" y1="128" x2="150" y2="152" style="stroke: var(--risk); stroke-width: 3"/>
+        <text x="160" y="145" class="small mono risk">$0, wiped out</text>
+        <text x="10" y="182" class="small muted">Equity in a $100 cluster with $75 of debt</text>
+      </svg>
+    </figure>
+    <div class="cell"><span class="tag warn">Why the equity is so sensitive</span>
+      <p>At 75% LTV, a $100 cluster carries $75 of debt and $25 of equity, and the equity takes losses first. A 10% fall in value cuts the equity 40%, to $15; a 25% fall wipes it out.</p>
+      <p>Contract revenue pays debt service first, so a renewal at 30% lower rent can remove most of the equity's cash in years 4-6 while lenders are still paid.</p>
+      <p>The contract makes the senior debt cheap, and the equity carries the uncertainty about renewal rents, utilization and residual value.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HISTORY ============ -->
+<section id="s4">
+  <div class="eyebrow">Section 4</div>
+  <h2>SPVs in financial history</h2>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>Industry and era</th><th>What the SPV held</th><th>Held up?</th><th>What went wrong</th></tr></thead>
+    <tbody>
+      <tr><td>Railroad equipment trusts (1870s on)</td><td>Locomotives, rail cars</td><td><span class="pill yes">Yes</span></td><td>Little; the model of success</td></tr>
+      <tr><td>Project finance: power, pipelines, LNG, toll roads (1980s on)</td><td>One plant plus offtake contract</td><td><span class="pill mixed">Mostly</span></td><td>Offtaker failure; uncontracted plants; demand forecasts</td></tr>
+      <tr><td>Aircraft ABS (1990s on)</td><td>Leased aircraft portfolios</td><td><span class="pill mixed">Seniors mostly</span></td><td>9/11 and COVID cut lease rates and values; juniors often not repaid</td></tr>
+      <tr><td>Enron (late 1990s-2001)</td><td>Hedges and assets in entities it effectively controlled</td><td><span class="pill no">No</span></td><td>Hedges backed by Enron's own stock</td></tr>
+      <tr><td>Mortgage securitization and CDOs (1980s-2008)</td><td>Mortgage pools</td><td><span class="pill mixed">Legally yes</span></td><td>Economically no: no one kept the risk; correlated defaults</td></tr>
+      <tr><td>SIVs and ABCP conduits (2000s-2007)</td><td>Long assets funded with short paper</td><td><span class="pill no">No</span></td><td>Funding run; sponsors took them back</td></tr>
+      <tr><td>German KG ship funds (2000s-2010s)</td><td>One ship per partnership</td><td><span class="pill mixed">Legally yes</span></td><td>Economically no: synchronized overbuild; charters shorter than debt</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="grid3">
+    <div class="cell"><span class="tag ok">Railroad equipment trusts</span>
+      <p>A trustee owns the rolling stock and leases it to the railroad; investors are paid from the lease. Railroads financed equipment cheaply even when their bonds were junk. Through the receiverships of the 1890s and 1930s and Penn Central in 1970, equipment trust holders were usually paid while other bondholders lost, because a bankrupt railroad still needs its locomotives and another railroad would take them. Congress wrote this into Section 1168 (rail) and Section 1110 (aircraft).</p>
+      <p><strong>Lesson:</strong> SPVs work best when the asset is essential to the user and easy to redeploy.</p></div>
+    <div class="cell"><span class="tag warn">Project finance</span>
+      <p>Each project is its own company: sponsors put in equity, banks lend non-recourse, a long-term offtake contract repays the debt, and a contractor builds at a fixed price. This is the structural parent of the neocloud deals.</p>
+      <ul class="plain">
+        <li><strong>Dabhol, India (1990s-2001):</strong> an Enron-led, roughly $2.9B power plant. The state electricity board stopped paying in 2001 and the plant sat idle for years.</li>
+        <li><strong>Merchant power (2002-05):</strong> gas plants financed against market prices instead of contracts. After an overbuild, Mirant, NRG and later Calpine filed, and lenders took the keys to many plant SPVs.</li>
+        <li><strong>Toll roads:</strong> Sydney's Cross City Tunnel went into receivership in 2006, a year after opening, on traffic far below forecast.</li>
+      </ul>
+      <p><strong>Lesson:</strong> an SPV is only as good as its offtaker, and a forecast is not a contract.</p></div>
+    <div class="cell"><span class="tag warn">Aircraft lease securitization</span>
+      <p>Lessors put leased planes into an SPV issuing tranched notes at about 65-80% of appraised value, with the lessor as servicer. GPA's Airplanes Group (1996, about $4B) was the landmark deal; after 9/11 lease rates and values fell, and the junior classes stopped being paid. In 2020, airlines deferred rent, many deals breached coverage tests, cash was locked in for the senior notes, and junior tranches were impaired.</p>
+      <p><strong>Lesson:</strong> the waterfall protected senior lenders as designed. It could not protect against a sector-wide fall in what the asset earns.</p></div>
+    <div class="cell"><span class="tag risk">Enron</span>
+      <p>Accounting rules then let a company keep an SPE off its balance sheet if outsiders held 3% of its equity. Enron used hundreds (Chewco, JEDI, LJM, the Raptors), run in part by CFO Andrew Fastow, to book gains, hide debt and "hedge" its investments. The Raptors were capitalized mainly with Enron stock, so the hedges failed as the stock fell. Enron restated about $586M of earnings in November 2001 and filed that December. Result: Sarbanes-Oxley and FIN 46.</p>
+      <p><strong>Lesson:</strong> an SPV backed by the sponsor's own credit transfers no risk.</p></div>
+    <div class="cell"><span class="tag risk">Mortgage securitization and CDOs</span>
+      <p>Originators sold mortgages into trust SPVs that issued tranched securities; CDOs bought the risky tranches and re-tranched them. The legal ring-fence mostly held. The economics failed: originators who kept no risk stopped caring about loan quality, tranching assumed defaults wouldn't happen together, and servicers couldn't modify or foreclose properly at scale.</p>
+      <p><strong>Lesson:</strong> an SPV can isolate legal risk while spreading economic risk.</p></div>
+    <div class="cell"><span class="tag risk">SIVs and ABCP conduits</span>
+      <p>Bank-sponsored vehicles bought long-dated securities funded with commercial paper maturing in weeks. When money funds stopped rolling the paper in August 2007, Citigroup took about $49B of SIV assets onto its balance sheet and HSBC about $45B; IKB needed a rescue. Northern Rock's Granite trust stayed legally intact, but the bank failed on its funding model. FAS 166/167 (2009) forced many vehicles back onto balance sheets.</p>
+      <p><strong>Lesson:</strong> off-balance-sheet is not off-the-hook, and short funding for long assets fails in a run.</p></div>
+    <div class="cell"><span class="tag risk">German KG ship funds</span>
+      <p>Each ship was its own limited partnership: retail investors bought the equity for tax benefits, regional banks provided most of the debt, and charters often ran shorter than the loans. After the 2005-08 ordering boom, the Baltic Dry index fell from about 11,800 in May 2008 to about 660 by December. As charters rolled off, the single-ship KGs defaulted in large numbers; HSH Nordbank needed a state rescue in 2009 and was sold in 2018.</p>
+      <p><strong>Lesson:</strong> when every SPV holds the same asset, financed the same way at the same time, the losses all land on the same lenders. This is the closest analog to a GPU overbuild.</p></div>
+    <div class="cell"><span class="tag warn">The legal test: General Growth Properties (2009)</span>
+      <p>The mall owner had financed hundreds of properties in bankruptcy-remote SPVs with independent directors. When GGP filed, it put many of those SPVs into Chapter 11 too, including performing ones, after replacing their independent directors shortly before the filing. The court let the filings stand because the SPVs were part of an integrated enterprise. Lenders were eventually paid but lost control of timing and cash.</p></div>
+  </div>
+</section>
+
+<!-- ============ HOLD / BREAK ============ -->
+<section id="s5">
+  <div class="eyebrow">Section 5</div>
+  <h2>Where SPVs hold and where they break</h2>
+  <div class="two">
+    <div class="cell"><span class="tag ok">What SPVs do well</span>
+      <ul class="plain">
+        <li>Isolate one cash flow so lenders can price it cheaply.</li>
+        <li>Let builders grow beyond their balance sheets.</li>
+        <li>Protect senior lenders through the payment order.</li>
+        <li>Survive sponsor bankruptcy when the asset is essential and easy to redeploy.</li>
+      </ul></div>
+    <div class="cell"><span class="tag risk">What they cannot handle</span>
+      <ol class="plain">
+        <li><strong>Customer failure or contract expiry.</strong> The ring-fence protects an asset, not its revenue (Dabhol, merchant power, ship charters).</li>
+        <li><strong>Debt longer than the contract.</strong> Lenders become bettors on market prices (merchant power, KG funds).</li>
+        <li><strong>Sector-wide repricing</strong> (ships, aircraft in 2001 and 2020, mortgages in 2007).</li>
+        <li><strong>Support from the sponsor's own credit</strong> (Enron's stock-backed hedges, SIV backstops).</li>
+        <li><strong>Short funding for long assets</strong> (SIVs, Northern Rock).</li>
+        <li><strong>Bad incentives</strong> when the originator or builder keeps no risk (originate-to-distribute mortgages).</li>
+        <li><strong>Dependence on the operator.</strong> The legal box doesn't run itself (mortgage servicers; for GPUs, a neocloud is hard to replace mid-contract).</li>
+      </ol></div>
+  </div>
+</section>
+
+<!-- ============ GPU: STAY ============ -->
+<section id="s6-1">
+  <div class="eyebrow">Section 6.1</div>
+  <h2>No statutory repossession for GPUs</h2>
+  <div class="two">
+    <div class="cell"><span class="tag risk">The usual rule: the automatic stay</span>
+      <p>When a company files for Chapter 11, the automatic stay (Section 362) freezes every creditor, secured ones included. A lender holding a lien on equipment can't repossess it; the debtor can keep using the equipment while the case runs, often for many months or years. The lender can ask for "adequate protection," payments meant to offset the collateral losing value. In practice it waits, argues about valuation, and may have its claim restructured.</p></div>
+    <div class="cell"><span class="tag ok">The aircraft and rail carve-outs</span>
+      <p>Sections 1110 (aircraft and ships) and 1168 (rail equipment) take these assets out of that rule. Within 60 days of the filing, the debtor must either agree to keep paying and cure any defaults, or hand the equipment back. If it does neither, the lender can repossess without asking the court. The Cape Town Convention gives similar rights for aircraft in many other countries.</p>
+      <p>A lender knows that within about two months it will either be paid in full or hold the asset. Lower expected losses mean lower rates and higher loan-to-value, and bankrupt airlines usually keep paying on the planes they need.</p></div>
+  </div>
+  <figure>
+    <div class="fig-title">What a secured lender faces after a filing</div>
+    <div class="scroll">
+    <svg class="chart-wide" viewBox="0 0 900 250" role="img" aria-label="Three lender paths: aircraft lender paid or repossesses within 60 days; GPU SPV lender can enforce if the SPV is not in bankruptcy; GPU SPV lender is stayed for months to years if the SPV itself files.">
+      <line class="grid" x1="300" y1="20" x2="300" y2="214"/>
+      <text x="300" y="232" text-anchor="middle" class="small mono muted">filing</text>
+      <line class="grid" x1="400" y1="20" x2="400" y2="214" style="stroke-dasharray: 3 3"/>
+      <text x="400" y="232" text-anchor="middle" class="small mono muted">day 60</text>
+      <text x="740" y="232" text-anchor="middle" class="small mono muted">months to years →</text>
+
+      <text x="10" y="50" class="bold">Aircraft lender</text>
+      <text x="10" y="68" class="small muted">Section 1110</text>
+      <rect x="300" y="36" width="100" height="30" style="fill: var(--ok-soft); stroke: var(--ok)"/>
+      <text x="350" y="56" text-anchor="middle" class="small ok">60 days</text>
+      <text x="412" y="56" class="small">then paid in full, or the plane comes back</text>
+
+      <text x="10" y="114" class="bold">GPU SPV lender</text>
+      <text x="10" y="132" class="small muted">parent files, SPV does not</text>
+      <rect x="300" y="100" width="40" height="30" style="fill: var(--ok-soft); stroke: var(--ok)"/>
+      <text x="352" y="120" class="small">can enforce against the SPV's assets; the parent's filing doesn't stay it</text>
+
+      <text x="10" y="178" class="bold">GPU SPV lender</text>
+      <text x="10" y="196" class="small muted">SPV files or is pulled in (GGP)</text>
+      <defs><linearGradient id="decay" x1="0" x2="1"><stop offset="0" style="stop-color: var(--warn-soft)"/><stop offset="1" style="stop-color: var(--risk-soft)"/></linearGradient></defs>
+      <rect x="300" y="164" width="580" height="30" style="fill: url(#decay); stroke: var(--risk)"/>
+      <text x="312" y="184" class="small risk">automatic stay: debtor keeps running the GPUs, adequate-protection fights, collateral loses value each month</text>
+    </svg>
+    </div>
+    <figcaption>The SPV is partly a workaround: if CoreWeave the parent files but a bankruptcy-remote SPV does not, the SPV's lender is not stayed. The missing statute matters when the SPV itself files, or is pulled in as General Growth Properties' SPVs were in 2009. That is most likely in the distressed case, when the sponsor fights to keep control of its best assets.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ GPU: DEPRECIATION ============ -->
+<section id="s6-2">
+  <div class="eyebrow">Section 6.2</div>
+  <h2>Why depreciation speed matters</h2>
+  <p class="prose">A secured lender's recovery is roughly the collateral's value on the day it can sell, minus the cost of seizing and reselling it. GPUs are weaker collateral than planes or locomotives on every count.</p>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th></th><th>Aircraft / locomotive</th><th>GPU cluster</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Useful life</strong></td><td>25+ years / decades</td><td>6-year book life at CoreWeave (4 at Nebius); critics argue about 4 years of economic life</td></tr>
+      <tr><td><strong>Value path</strong></td><td>Slow, predictable decline; independent appraisers publish values</td><td>Set by the next chip generation: Vera Rubin is about 3x Grace Blackwell at the speeds providers sell</td></tr>
+      <tr><td><strong>Resale market</strong></td><td>Deep and global; any airline can fly the plane</td><td>Exists while compute is scarce; would flood if many lenders sell at once in a glut</td></tr>
+      <tr><td><strong>Getting it back</strong></td><td>Fly it away</td><td>Racks wired into someone else's building, with power, cooling and networking; removal and resale cost real money</td></tr>
+    </tbody>
+  </table></div>
+  <p class="prose">The two weaknesses compound. A six-month delay costs a plane lender a few percent of value; it could cost a GPU lender a much larger share. The timing is also worst when it matters: a neocloud fails because rental rates fell, which is when GPUs are worth least. H100 rents fell to about $1.30 an hour in fall 2025 before recovering to about $3. That range is why SemiAnalysis says most deals assume no residual value at all.</p>
+</section>
+
+<!-- ============ GPU: CONTRACT-BACKED ============ -->
+<section id="s6-3">
+  <div class="eyebrow">Section 6.3</div>
+  <h2>The healthy pattern: the contract repays the debt</h2>
+  <p class="prose">Classic project finance, such as a power plant with a long power purchase agreement, works because the lender rarely needs the collateral. That takes an investment-grade offtaker, and a contract whose revenue covers debt service with a margin and outlasts the debt.</p>
+  <figure>
+    <div class="fig-title">Debt balance against contract length, illustrative $750M loan</div>
+    <div class="scroll">
+    <svg class="chart-wide" viewBox="0 0 900 360" role="img" aria-label="Debt balance falls from $750M to zero over five years. A 5-year contract covers the whole path. A 3-year contract ends with about $330M still owed.">
+      <!-- y: 260 - bal*220/750 ; x: 80 + yr*140 -->
+      <line class="grid" x1="80" y1="40" x2="780" y2="40"/>
+      <line class="grid" x1="80" y1="113.3" x2="780" y2="113.3"/>
+      <line class="grid" x1="80" y1="186.7" x2="780" y2="186.7"/>
+      <line class="grid" x1="80" y1="260" x2="780" y2="260" style="stroke: var(--muted)"/>
+      <text x="70" y="44" text-anchor="end" class="small mono muted">$750M</text>
+      <text x="70" y="117" text-anchor="end" class="small mono muted">$500M</text>
+      <text x="70" y="191" text-anchor="end" class="small mono muted">$250M</text>
+      <text x="70" y="264" text-anchor="end" class="small mono muted">$0</text>
+      <text x="80" y="280" text-anchor="middle" class="small mono muted">yr 0</text>
+      <text x="220" y="280" text-anchor="middle" class="small mono muted">1</text>
+      <text x="360" y="280" text-anchor="middle" class="small mono muted">2</text>
+      <text x="500" y="280" text-anchor="middle" class="small mono muted">3</text>
+      <text x="640" y="280" text-anchor="middle" class="small mono muted">4</text>
+      <text x="780" y="280" text-anchor="middle" class="small mono muted">5</text>
+
+      <path d="M80,40 L220,78.2 L360,119.2 L500,163 L640,209.8 L780,260 L780,260 L80,260 Z" style="fill: var(--accent-soft)"/>
+      <polyline points="80,40 220,78.2 360,119.2 500,163 640,209.8 780,260" style="fill: none; stroke: var(--accent); stroke-width: 3"/>
+      <text x="236" y="72" class="small accent">debt outstanding ($183M a year of debt service)</text>
+
+      <circle cx="500" cy="163" r="6" style="fill: var(--risk)"/>
+      <line x1="500" y1="163" x2="560" y2="128" style="stroke: var(--risk); stroke-width: 1.2"/>
+      <text x="566" y="124" class="small risk bold">~$330M still owed</text>
+      <text x="566" y="140" class="small risk">when a 3-year contract ends</text>
+
+      <!-- contract bands -->
+      <text x="72" y="307" text-anchor="end" class="small bold">5-yr</text>
+      <rect x="80" y="296" width="700" height="14" style="fill: var(--ok-soft); stroke: var(--ok)"/>
+      <text x="430" y="307" text-anchor="middle" class="small ok">5-year contract: take-or-pay revenue covers every payment; debt reaches $0</text>
+      <text x="72" y="337" text-anchor="end" class="small bold">3-yr</text>
+      <rect x="80" y="326" width="420" height="14" style="fill: var(--ok-soft); stroke: var(--ok)"/>
+      <text x="290" y="337" text-anchor="middle" class="small ok">3-year contract</text>
+      <rect x="500" y="326" width="280" height="14" style="fill: var(--risk-soft); stroke: var(--risk); stroke-dasharray: 4 3"/>
+      <text x="640" y="337" text-anchor="middle" class="small risk">renewal price or GPU resale</text>
+    </svg>
+    </div>
+    <figcaption>$750M at about 7%, amortizing over 5 years, illustrative. With a 5-year contract the lender's bet is that the customer pays and the operator keeps the cluster running; the GPUs are backup collateral. That is the profile of CoreWeave's $8.5B loan at SOFR + 225bp, rated A3 while the parent is B+. With a 3-year contract, the last ~$330M depends on renewal pricing or used-GPU prices, which is why CoreWeave's $2.6B facility, whose debt outlasts its contracts, costs +5.5% instead of +2.25%.</figcaption>
+  </figure>
+  <div class="cell"><span class="tag risk">What can still break a contract-backed deal</span>
+    <ul class="plain">
+      <li><strong>Termination rights.</strong> If the customer can cancel, for example because the operator misses delivery dates or service levels, the contract falls away and the lender is back to relying on GPU collateral, without Section 1110. That is the "execution risk" SemiAnalysis prices at about 100bp over the customer's own spread.</li>
+      <li><strong>Construction and power delays.</strong> Interest accrues before revenue starts.</li>
+      <li><strong>A thinner backstop than it looks.</strong> A hyperscaler reselling capacity to a lab may have rights to pass problems through to the lab.</li>
+    </ul></div>
+</section>
+
+<!-- ============ GPU: PATTERNS + WATCH ============ -->
+<section id="s6-4">
+  <div class="eyebrow">Sections 6.4 and 6.5</div>
+  <h2>Patterns that match past failures, and what to watch</h2>
+  <div class="grid3">
+    <div class="cell"><span class="tag risk">Debt outlasting contracts</span><p>CoreWeave's $2.6B facility, about five years against three-year contracts, is the merchant-power and KG-fund setup.</p></div>
+    <div class="cell"><span class="tag risk">Many single-site SPVs, same window, same asset</span><p>The KG-fund setup: each failure contained, all losses landing on the same lenders.</p></div>
+    <div class="cell"><span class="tag warn">Sponsor-linked support for non-IG customers</span><p>Nvidia's backstops ($497B per SemiAnalysis Ep. 037, $588B per Patel) come from the party that benefits from the demand. This is not Enron, but it is the circularity question to watch.</p></div>
+  </div>
+  <div class="verdict">
+    <p><strong>The variable to watch: sector-wide renewal pricing</strong>, more than any one SPV's legal integrity. Brandon Carl's shortage-then-glut argument is the scenario where that repricing happens across every box at once.</p>
+  </div>
+</section>
+
+<section class="sources" id="sources">
+  <div class="eyebrow">Sources and related wiki pages</div>
+  <p>Markdown source of this page: <code>investing-macro/macro-frameworks/spv-history-and-gpu-project-finance.md</code>.</p>
+  <p>GPU figures: <span class="wl">market-newsletter-digest-2026-10-02</span> §4 (Devansh's risk map, CoreWeave loan pricing) and §5 (Vera Rubin); <span class="wl">market-newsletter-digest-2026-10-09</span> §4 (funding wall, H100 rents, Nvidia backstops); <span class="wl">sa-whos-funding-the-11-trillion-ai-buildout-20261009</span>; <a href="coreweave-credit.html">crwv-credit-squeeze-20261028</a>; <span class="wl">bts-ai-outcomes-have-fat-tails-brandon-carl-20261030</span>.</p>
+  <p>Frameworks: <span class="wl">ai-compute-commencement-wall-and-refinancing-trap</span>, <span class="wl">ai-capex-financing-risk-semianalysis-2026-10</span>.</p>
+  <p>Historical cases are from general financial history; figures are approximate. The $1B cluster, waterfall and debt-paydown charts are illustrations in round numbers.</p>
+</section>
+
+</div>
+</div>
+<script>
+(function () {
+  var narrow = window.matchMedia("(max-width: 1179px)");
+  var box = document.querySelector(".toc details");
+  if (narrow.matches) box.removeAttribute("open");
+  if (!("IntersectionObserver" in window)) return;
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a"));
+  var targets = links.map(function (a) { return document.querySelector(a.getAttribute("href")); });
+  var seen = new Map();
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { seen.set(e.target, e.isIntersecting); });
+    var current = null;
+    for (var i = 0; i < targets.length; i++) { if (targets[i] && seen.get(targets[i])) { current = targets[i]; break; } }
+    if (!current) return;
+    links.forEach(function (a, i) { a.classList.toggle("active", targets[i] === current && !(a.parentNode.querySelector("ol"))); });
+  }, { rootMargin: "0px 0px -60% 0px" });
+  targets.forEach(function (t) { if (t) obs.observe(t); });
+  links.forEach(function (a) { a.addEventListener("click", function () { if (narrow.matches) box.removeAttribute("open"); }); });
+})();
+</script>
+</body>
+</html>

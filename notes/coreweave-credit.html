@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>
+:root { color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; font-size: 14px; font-family: system-ui, -apple-system, sans-serif; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+</style>
+<title>CoreWeave Credit Squeeze</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column of a credit memo; charts and tables break out to a wider measure. */
+:root {
+  --bg: #f3f5f7;
+  --surface: #ffffff;
+  --ink: #15202b;
+  --muted: #5a6875;
+  --rule: #d5dce3;
+  --accent: #1e5b86;
+  --risk: #b3312a;
+  --risk-soft: #f6e3e1;
+  --warn: #a86a12;
+  --warn-soft: #f7ecd9;
+  --ok: #2c7655;
+  --ok-soft: #e0efe7;
+  --neutral-bar: #9aa8b5;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11171d; --surface: #182129; --ink: #e3e9ef; --muted: #98a6b3; --rule: #2c3944;
+    --accent: #7db4dc; --risk: #ec7a70; --risk-soft: #3a2222; --warn: #e0a64e; --warn-soft: #3a2e1c;
+    --ok: #6cc29a; --ok-soft: #1c3329; --neutral-bar: #5f6f7d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11171d; --surface: #182129; --ink: #e3e9ef; --muted: #98a6b3; --rule: #2c3944;
+  --accent: #7db4dc; --risk: #ec7a70; --risk-soft: #3a2222; --warn: #e0a64e; --warn-soft: #3a2e1c;
+  --ok: #6cc29a; --ok-soft: #1c3329; --neutral-bar: #5f6f7d; color-scheme: dark;
+}
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+.page {
+  max-width: 980px; margin: 0 auto;
+  padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 56px;
+}
+.prose { max-width: 68ch; }
+h1, h2, h3 { font-family: var(--display); font-weight: 650; text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(2rem, 4.5vw, 2.9rem); letter-spacing: -0.01em; }
+h2 { font-size: 1.6rem; }
+h3 { font-size: 1.15rem; font-weight: 500; }
+p { margin: 0; }
+section { display: grid; gap: 18px; min-width: 0; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 1.15rem; color: var(--ink); }
+.meta { font-family: var(--mono); font-size: 0.8rem; color: var(--muted); }
+header { display: grid; gap: 16px; }
+.verdict {
+  border-left: 4px solid var(--risk); background: var(--surface); padding: 18px 22px;
+  display: grid; gap: 10px; max-width: 74ch;
+}
+.verdict strong { color: var(--risk); }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.cell { background: var(--surface); border: 1px solid var(--rule); padding: 16px 18px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.cell .tag { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.tag.risk { color: var(--risk); } .tag.warn { color: var(--warn); } .tag.ok { color: var(--ok); }
+.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; background: var(--surface); }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); background: var(--bg); position: sticky; top: 0; }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.group { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); background: var(--bg); padding-top: 14px; }
+.keytable { min-width: 680px; }
+.trigtable { min-width: 820px; }
+.pill { display: inline-block; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 3px; white-space: nowrap; }
+.pill.live { background: var(--risk-soft); color: var(--risk); }
+.pill.building { background: var(--warn-soft); color: var(--warn); }
+.pill.remote { background: var(--ok-soft); color: var(--ok); }
+figure { margin: 0; background: var(--surface); border: 1px solid var(--rule); padding: 20px 18px 16px; display: grid; gap: 12px; min-width: 0; }
+figcaption { font-size: 0.85rem; color: var(--muted); max-width: 80ch; }
+svg { display: block; width: 100%; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); }
+svg .mono { font-family: var(--mono); }
+svg .muted { fill: var(--muted); }
+svg .risk { fill: var(--risk); }
+svg .ok { fill: var(--ok); }
+svg .warn { fill: var(--warn); }
+svg .accent { fill: var(--accent); }
+svg .on-fill { fill: var(--surface); }
+.chart-wide { min-width: 640px; }
+ol.steps, ul.plain { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.two > * { min-width: 0; }
+.sources { font-size: 0.85rem; color: var(--muted); display: grid; gap: 6px; }
+.sources a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <div class="eyebrow">AI credit · neoclouds · as of 28 Oct 2026</div>
+  <h1>Why CoreWeave pays 15% to borrow</h1>
+  <p class="lede prose">CoreWeave's 9.75% notes due 2031 were issued at 102 cents in April. By late October they traded near 81 cents, yielding over 15%. Its five-year CDS hit a record 1,194.5bp on 15 October. This page sets out what the bond market is pricing, what would have to line up for a default, and which events could set one off.</p>
+  <div class="verdict">
+    <p><strong>Short answer: mostly timing and funding, with a margin question underneath.</strong></p>
+    <p>CoreWeave spends cash on GPUs and data centers 12 to 36 months before those assets earn revenue. In the meantime it pays interest every quarter, so it has to raise new money continuously. Bond buyers are not worried about the backlog. They are worried about whether the capital markets stay open long enough for that backlog to turn into cash. Underneath that sits a slower question: whether GPU rental rates stay above the cost of the debt that bought the GPUs.</p>
+  </div>
+</header>
+
+<!-- ============ KEY NUMBERS ============ -->
+<section>
+  <div class="eyebrow">The numbers</div>
+  <h2>What a lender sees</h2>
+  <div class="scroll">
+    <table class="keytable">
+      <thead><tr><th>Metric</th><th>CoreWeave</th><th>Why credit cares</th></tr></thead>
+      <tbody>
+        <tr><td class="group" colspan="3">Cash going out</td></tr>
+        <tr><td>2026 capex guidance</td><td class="num">$35–39B</td><td>About 3× 2026 revenue guidance of $12.4–13.2B. Almost all of the gap is funded externally.</td></tr>
+        <tr><td>Expected 2026 cash burn</td><td class="num">~$25B</td><td>Analyst estimate. Each year of the build plan needs a new round of financing.</td></tr>
+        <tr><td>Raised in 2026 so far</td><td class="num">&gt;$35B</td><td>Chip-backed loans, high-yield bonds, convertibles and share sales. The company depends on all four channels staying open.</td></tr>
+        <tr><td class="group" colspan="3">Interest load</td></tr>
+        <tr><td>Q2 2026 net interest</td><td class="num">$640M</td><td>Up from $267M a year earlier. That is about 25% of Q2 revenue of $2.575B.</td></tr>
+        <tr><td>Q3 2026 interest guidance</td><td class="num">$860–940M</td><td>Up roughly 40% quarter on quarter as new debt funds new sites.</td></tr>
+        <tr><td>Q2 GAAP operating result</td><td class="num">−$49M</td><td>The operating line does not cover interest, so coupons are paid from new borrowing.</td></tr>
+        <tr><td>Q2 GAAP net loss</td><td class="num">−$626M</td><td>Double the year-earlier loss of $290M while revenue grew 112%.</td></tr>
+        <tr><td class="group" colspan="3">Balance sheet</td></tr>
+        <tr><td>Total debt (30 Jun)</td><td class="num">~$35B</td><td>Rises to about $51.6B once leases and other obligations are counted.</td></tr>
+        <tr><td>Due by end-2027</td><td class="num">$10.6B</td><td>This has to be refinanced or repaid during the heaviest years of the build.</td></tr>
+        <tr><td>Debt-to-equity incl. leases</td><td class="num">&gt;800%</td><td>Per The Credit Strategist. Negative working capital is over $10B.</td></tr>
+        <tr><td>Ratings</td><td class="num">B+ / Ba3 / BB−</td><td>S&amp;P / Moody's / Fitch. All three are high yield. Lewitt argues B−/CCC+ is closer to the risk.</td></tr>
+        <tr><td class="group" colspan="3">What the market says</td></tr>
+        <tr><td>9.75% notes due 2031</td><td class="num">102 → ~81</td><td>Issued in April at about 9.4% yield. Above 15–16% in mid-October.</td></tr>
+        <tr><td>5-yr CDS</td><td class="num">1,194.5bp peak</td><td>Recorded on 15 Oct, near 1,066bp by 26 Oct. Implies roughly 60% default odds over five years (see the math below).</td></tr>
+        <tr><td>Share price</td><td class="num">$55.60 → $59.57</td><td>A 17-month low on 22 Oct, then $59.57 on 27 Oct. Down about 50% in a year, which shrinks the equity and convertible window.</td></tr>
+        <tr><td class="group" colspan="3">What supports the credit</td></tr>
+        <tr><td>Revenue backlog</td><td class="num">$104B</td><td>Up 246% year on year. About two-thirds is from investment-grade counterparties (Microsoft, Meta, IBM) per Deutsche Bank. OpenAI makes up much of the rest.</td></tr>
+        <tr><td>Contract-backed secured loan</td><td class="num">SOFR + 225bp</td><td>$8.5B in March, rated A3 and backed by one customer contract. Lenders price debt with a single counterparty in front of it very differently.</td></tr>
+        <tr><td>New contract pricing</td><td class="num">~$40M / MW</td><td>4–6× last year's price, but on 3–6 month terms. The most profitable contracts are the hardest to borrow against.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="meta">GPU depreciation: CoreWeave uses 6 years, Nebius 4. A shorter life would raise annual expense and lower reported earnings and collateral value.</p>
+</section>
+
+<!-- ============ SPREAD LADDER ============ -->
+<section>
+  <div class="eyebrow">Where the market puts it</div>
+  <h2>CoreWeave prices closer to CCC than to its own rating</h2>
+  <figure>
+    <div class="scroll">
+    <svg class="chart-wide" viewBox="0 0 720 300" role="img" aria-label="Horizontal bar chart of five-year credit spreads in basis points: Nvidia 101, Meta 108, BB bond index 202, Oracle 308, CoreWeave 1,066 with a record of 1,194.5, CCC index 1,327.">
+      <!-- scale: x = 250 + bp * 0.3071 (0..1400bp over 430px) -->
+      <g stroke="var(--rule)" stroke-width="1">
+        <line x1="250" y1="28" x2="250" y2="250"/>
+        <line x1="326.8" y1="28" x2="326.8" y2="250"/>
+        <line x1="403.6" y1="28" x2="403.6" y2="250"/>
+        <line x1="480.3" y1="28" x2="480.3" y2="250"/>
+        <line x1="634" y1="28" x2="634" y2="250"/>
+      </g>
+      <line x1="557.1" y1="20" x2="557.1" y2="250" stroke="var(--risk)" stroke-width="1.5" stroke-dasharray="4 4"/>
+      <text x="561" y="18" class="risk" font-size="11">1,000bp: S&amp;P "distress" line</text>
+      <g class="mono muted" font-size="11" text-anchor="middle">
+        <text x="250" y="268">0</text><text x="326.8" y="268">250</text><text x="403.6" y="268">500</text>
+        <text x="480.3" y="268">750</text><text x="557.1" y="268">1,000</text><text x="634" y="268">1,250</text>
+      </g>
+      <text x="465" y="290" class="muted" font-size="11" text-anchor="middle">basis points over the risk-free rate</text>
+
+      <g font-size="13">
+        <text x="16" y="50">Nvidia 5-yr CDS</text>
+        <rect x="250" y="36" width="31" height="20" fill="var(--neutral-bar)"/>
+        <text x="287" y="51" class="mono" font-size="12">101</text>
+
+        <text x="16" y="84">Meta 5-yr CDS</text>
+        <rect x="250" y="70" width="33.2" height="20" fill="var(--neutral-bar)"/>
+        <text x="289" y="85" class="mono" font-size="12">108</text>
+
+        <text x="16" y="118">BB bond index (BofA)</text>
+        <rect x="250" y="104" width="62" height="20" fill="var(--neutral-bar)"/>
+        <text x="318" y="119" class="mono" font-size="12">202</text>
+
+        <text x="16" y="152">Oracle 5-yr CDS (BBB)</text>
+        <rect x="250" y="138" width="94.6" height="20" fill="var(--warn)"/>
+        <text x="351" y="153" class="mono" font-size="12">308</text>
+
+        <text x="16" y="186" font-weight="600">CoreWeave 5-yr CDS (B+)</text>
+        <rect x="250" y="172" width="327.4" height="20" fill="var(--risk)"/>
+        <line x1="616.8" y1="168" x2="616.8" y2="196" stroke="var(--risk)" stroke-width="2"/>
+        <text x="571" y="187" class="mono on-fill" font-size="12" text-anchor="end">1,066</text>
+        <text x="621" y="186" class="mono risk" font-size="11">1,194.5 peak</text>
+
+        <text x="16" y="220">CCC &amp; lower index (BofA)</text>
+        <rect x="250" y="206" width="407.5" height="20" fill="var(--neutral-bar)"/>
+        <text x="663" y="221" class="mono" font-size="12">1,327</text>
+      </g>
+    </svg>
+    </div>
+    <figcaption>CDS levels are from the 26 Oct Forbes/FactSet ladder (CoreWeave 1,066, Oracle 308, Meta 108, Nvidia 101). The CoreWeave peak is the 15 Oct ICE print. The BB and CCC figures are BofA index option-adjusted spreads from 20 Oct. CDS and bond-index spreads are different instruments, so read this as a ranking, not an exact comparison. CoreWeave is rated BB−/B+, but its CDS trades about 80% of the way from the BB index to the CCC index. No other neocloud has quoted single-name CDS. Nebius, IREN, Applied Digital and Cipher appear in the peer table below and the yield chart in the next section.</figcaption>
+  </figure>
+  <div class="two">
+    <div class="prose" style="display:grid;gap:10px">
+      <h3>What 1,100bp implies</h3>
+      <p>A rough rule converts a CDS spread into an annual default probability: spread ÷ (1 − recovery). Assuming 40% recovery, 1,194.5bp ÷ 0.6 ≈ 20% a year. Compounded over five years, 1 − e<sup>−1.0</sup> ≈ 63%. That matches Simon Ree's reading of "about 60% within five years". The market is not calling default certain. It is pricing default as more likely than not.</p>
+    </div>
+    <div class="prose" style="display:grid;gap:10px">
+      <h3>Why secured debt is so much cheaper</h3>
+      <p>In March, CoreWeave borrowed $8.5B at SOFR + 225bp with an A3 rating because the loan sat directly behind one customer's contract. Its unsecured notes have no such claim. They get paid only after the asset-level lenders, out of whatever cash is left at the parent. The 15% yield prices that residual position. It does not price the company's best customers.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-top:12px">How the other neoclouds compare</h3>
+  <p class="prose">The peers took the same equity hit in October. CoreWeave, Nebius and IREN each fell about 20% in the week of 13 Oct, and on 22 Oct TeraWulf fell 11.3%, IREN 8.4% and Nebius 7.2%. Their debt has held up much better, because they fund the build differently. CoreWeave leans on unsecured high-yield bonds. Nebius and IREN use customer prepayments, convertibles and contract-secured loans. Applied Digital and Cipher issue secured bonds backed by long hyperscaler leases.</p>
+  <div class="scroll">
+    <table class="keytable" style="min-width:860px">
+      <thead><tr><th>Measure</th><th>CoreWeave</th><th>Nebius</th><th>IREN</th><th>Applied Digital</th></tr></thead>
+      <tbody>
+        <tr><td>Business</td><td>GPU cloud</td><td>GPU cloud</td><td>GPU cloud (ex-bitcoin miner)</td><td>Data center landlord; CoreWeave is a major tenant</td></tr>
+        <tr><td>Credit rating</td><td class="num">B+ / Ba3 / BB−</td><td>Unrated</td><td>None found</td><td>Project notes; rating not found</td></tr>
+        <tr><td>Single-name CDS</td><td class="num">~1,066bp<br>(1,194.5 peak)</td><td>None quoted</td><td>None quoted</td><td>None quoted</td></tr>
+        <tr><td>Main funding</td><td>Unsecured HY notes plus GPU-backed loans</td><td>Convertibles (about $10B raised Mar and Aug), equity, prepayments</td><td>Convertibles plus non-recourse GPU loans tied to the Microsoft contract</td><td>Secured project notes (7% 2031, 9.25% 2030)</td></tr>
+        <tr><td>What its debt yields</td><td class="num">15–16%<br>unsecured 2031/32</td><td>2034 converts at record lows; a convert yield is distorted by the conversion option</td><td class="num">5.96% fixed<br>(issue rate, Jun)</td><td class="num">≈8.4%<br>7% 2031 at 94.5</td></tr>
+        <tr><td>Customer prepayments</td><td>Not a major source in what's reported</td><td>Cover 50–60% of capex on four large deals; Q1 operating cash flow +$2.3B</td><td>$1.9B from Microsoft; with the GPU loan, covers ~95% of GPU capex</td><td>Not applicable (landlord)</td></tr>
+        <tr><td>2026 capex vs revenue</td><td class="num">$35–39B vs $12.4–13.2B<br>(~3×)</td><td class="num">$20–25B vs $3.0–3.4B<br>(~7×)</td><td>Not compared here</td><td>~$3.0B capex vs ~$90M operating cash flow (recent period)</td></tr>
+        <tr><td>Cash on hand</td><td>Not compared here</td><td class="num">~$8B (end Q2)</td><td class="num">~$2.8–3.3B (early 2026)</td><td>Not compared here</td></tr>
+        <tr><td>GPU depreciation</td><td class="num">6 years</td><td class="num">4 years</td><td>Not found</td><td>Not applicable</td></tr>
+        <tr><td>Anchor customers</td><td>Microsoft, OpenAI, Meta</td><td>Meta ($27B over 5 yrs), Microsoft</td><td>Microsoft</td><td>1.41 GW leased for ~$36.2B over 15 yrs, ~70% investment-grade hyperscalers; 400 MW to CoreWeave (~$11B)</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="prose" style="font-size:0.92rem;color:var(--muted)">Each peer has its own weak point. Nebius spends more relative to revenue than CoreWeave does. Its convertibles only become shares if the stock recovers; if it stays down, they have to be repaid or refinanced at maturity. Applied Digital's biggest tenant is CoreWeave, so CoreWeave's stress lands directly on its lease income. Firmus, Lambda and Nscale, the private neoclouds, are not shown. They have no traded debt, and their IPOs were pulled or repriced in October.</p>
+</section>
+
+<!-- ============ WHY 10%+ ============ -->
+<section>
+  <div class="eyebrow">New issue math</div>
+  <h2>Why a new unsecured bond has to pay 10% or more</h2>
+  <p class="prose">A bond's yield is roughly the Treasury yield plus the credit spread. The Treasury part is about 5% today; the 10-year traded between 4.96% and 5.19% in mid-October. That leaves room for less than 500bp of spread below 10%. CoreWeave's unsecured spread is twice that. Before the selloff, in April, its 9.75% coupon notes still priced near a 9.4% yield. Secured debt that sits behind a single customer contract costs much less. The peer rows at the top of the chart show it trading at 6–8.5%.</p>
+  <figure>
+    <div class="scroll">
+    <svg class="chart-wide" viewBox="0 0 720 350" role="img" aria-label="Stacked bars of approximate yields, each on a roughly 5% Treasury base: IREN secured GPU loan 5.96% at issue, Cipher secured 2030 about 7.2%, Applied Digital secured 2031 about 8.4%, BB index about 7%, CoreWeave if spreads halve about 10.3%, CoreWeave unsecured today about 15.7%, CCC index about 18.3%.">
+      <!-- scale: x = 250 + pct * 21.5 (0..20% over 430px) -->
+      <g stroke="var(--rule)" stroke-width="1">
+        <line x1="250" y1="22" x2="250" y2="288"/>
+        <line x1="357.5" y1="22" x2="357.5" y2="288"/>
+        <line x1="572.5" y1="22" x2="572.5" y2="288"/>
+        <line x1="680" y1="22" x2="680" y2="288"/>
+      </g>
+      <line x1="465" y1="12" x2="465" y2="288" stroke="var(--accent)" stroke-width="2"/>
+      <text x="469" y="14" class="accent" font-size="11" font-weight="600">10%</text>
+      <g class="mono muted" font-size="11" text-anchor="middle">
+        <text x="250" y="306">0%</text><text x="357.5" y="306">5%</text><text x="465" y="306">10%</text><text x="572.5" y="306">15%</text><text x="680" y="306">20%</text>
+      </g>
+      <g font-size="13">
+        <text x="16" y="45">IREN GPU loan (at issue)</text>
+        <rect x="250" y="30" width="107.5" height="20" fill="var(--neutral-bar)"/>
+        <rect x="357.5" y="31" width="20.6" height="18" fill="none" stroke="var(--accent)" stroke-width="2" stroke-dasharray="3 2"/>
+        <text x="384" y="45" class="mono" font-size="12">5.96%</text>
+
+        <text x="16" y="83">Cipher secured 2030</text>
+        <rect x="250" y="68" width="107.5" height="20" fill="var(--neutral-bar)"/>
+        <rect x="357.5" y="68" width="46.7" height="20" fill="var(--accent)"/>
+        <text x="410" y="83" class="mono" font-size="12">≈7.2%</text>
+
+        <text x="16" y="121">Applied Digital secured 2031</text>
+        <rect x="250" y="106" width="107.5" height="20" fill="var(--neutral-bar)"/>
+        <rect x="357.5" y="106" width="74" height="20" fill="var(--accent)"/>
+        <text x="426" y="121" class="mono on-fill" font-size="12" text-anchor="end">≈8.4%</text>
+
+        <text x="16" y="159" class="muted">BB bond index</text>
+        <rect x="250" y="144" width="107.5" height="20" fill="var(--neutral-bar)"/>
+        <rect x="357.5" y="144" width="43" height="20" fill="var(--neutral-bar)" opacity="0.55"/>
+        <text x="406" y="159" class="mono" font-size="12">≈7%</text>
+
+        <text x="16" y="197">CoreWeave, spread halves</text>
+        <rect x="250" y="182" width="107.5" height="20" fill="var(--neutral-bar)"/>
+        <rect x="357.5" y="182" width="114" height="20" fill="var(--warn)"/>
+        <text x="477" y="197" class="mono" font-size="12">≈10.3%</text>
+
+        <text x="16" y="235" font-weight="600">CoreWeave unsecured today</text>
+        <rect x="250" y="220" width="107.5" height="20" fill="var(--neutral-bar)"/>
+        <rect x="357.5" y="220" width="229" height="20" fill="var(--risk)"/>
+        <text x="592" y="235" class="mono" font-size="12">≈15.7%</text>
+
+        <text x="16" y="273" class="muted">CCC index</text>
+        <rect x="250" y="258" width="107.5" height="20" fill="var(--neutral-bar)"/>
+        <rect x="357.5" y="258" width="285" height="20" fill="var(--neutral-bar)" opacity="0.55"/>
+        <text x="648" y="273" class="mono" font-size="12">≈18.3%</text>
+      </g>
+      <g font-size="11.5">
+        <rect x="16" y="326" width="12" height="12" fill="var(--neutral-bar)"/><text x="34" y="336" class="muted">Treasury ≈5%</text>
+        <rect x="140" y="326" width="12" height="12" fill="var(--accent)"/><text x="158" y="336" class="muted">Peer secured debt</text>
+        <rect x="290" y="326" width="12" height="12" fill="var(--risk)"/><text x="308" y="336" class="muted">CoreWeave unsecured</text>
+        <rect x="450" y="326" width="12" height="12" fill="var(--neutral-bar)" opacity="0.55"/><text x="468" y="336" class="muted">Rating index</text>
+      </g>
+    </svg>
+    </div>
+    <figcaption>These are approximations: about 5% Treasury plus a spread. The peer rows are observed mid-October prices: Cipher's 7.125% secured notes at about 99.9, and Applied Digital's 7% secured notes at 94.5. IREN's 5.96% is the fixed rate at issue in June for its non-recourse loan tied to the Microsoft contract, not a market price; the dashed box marks that. The "CoreWeave unsecured today" row lines up with the 14.8–16% yields on its 2031 and 2032 notes. A new issue usually also pays a concession of 25–75bp. Nebius is left out because its debt is convertible notes with 0.5–4.5% coupons, and a convert's yield mostly reflects the conversion option, not credit risk.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ TIMING ============ -->
+<section>
+  <div class="eyebrow">Timing</div>
+  <h2>Cash goes out years before it comes back</h2>
+  <p class="prose">The timeline below follows one illustrative new cluster. The pressure comes from where the bars sit. Capex and interest start on day one. Revenue starts only when the site is energized. The cheapest debt is secured on long contracts, while new contracts run 3 to 6 months. And the GPUs may lose their earning power before they are written off.</p>
+  <figure>
+    <div class="scroll">
+    <svg class="chart-wide" viewBox="0 0 760 340" role="img" aria-label="Timeline over seven years for one illustrative cluster. Years zero to two: capex and construction, interest already accruing, no revenue. Years two to six: take-or-pay revenue. New contracts reprice every three to six months. GPU book life runs six years from power-on, while critics argue economic life is about four.">
+      <!-- x = 210 + years * 74.29 -->
+      <rect x="210" y="26" width="148.6" height="270" fill="var(--risk-soft)"/>
+      <text x="284.3" y="20" text-anchor="middle" class="risk" font-size="11.5" font-weight="600">Funding gap: paying, not earning</text>
+      <g stroke="var(--rule)" stroke-width="1">
+        <line x1="210" y1="26" x2="210" y2="296"/><line x1="284.3" y1="26" x2="284.3" y2="296"/>
+        <line x1="358.6" y1="26" x2="358.6" y2="296"/><line x1="432.9" y1="26" x2="432.9" y2="296"/>
+        <line x1="507.1" y1="26" x2="507.1" y2="296"/><line x1="581.4" y1="26" x2="581.4" y2="296"/>
+        <line x1="655.7" y1="26" x2="655.7" y2="296"/><line x1="730" y1="26" x2="730" y2="296"/>
+      </g>
+      <g class="mono muted" font-size="11" text-anchor="middle">
+        <text x="210" y="314">Yr 0</text><text x="284.3" y="314">1</text><text x="358.6" y="314">2</text><text x="432.9" y="314">3</text>
+        <text x="507.1" y="314">4</text><text x="581.4" y="314">5</text><text x="655.7" y="314">6</text><text x="730" y="314">7</text>
+      </g>
+      <text x="470" y="334" text-anchor="middle" class="muted" font-size="11">years from financing (illustrative)</text>
+
+      <g font-size="12.5">
+        <text x="16" y="56">Capex: GPUs, fit-out</text>
+        <rect x="210" y="41" width="111.4" height="22" fill="var(--risk)"/>
+        <text x="327" y="56" class="mono" font-size="11">cash out</text>
+
+        <text x="16" y="96">Build &amp; power-on</text>
+        <rect x="210" y="81" width="148.6" height="22" fill="var(--warn)"/>
+        <text x="364" y="96" class="mono" font-size="11">12–36 mo; delays push revenue out</text>
+
+        <text x="16" y="136">Interest on the debt</text>
+        <rect x="210" y="125" width="445.7" height="14" fill="var(--risk)" opacity="0.75"/>
+        <text x="662" y="136" class="mono" font-size="11">2031–32</text>
+
+        <text x="16" y="176">Anchor take-or-pay revenue</text>
+        <rect x="358.6" y="161" width="297.1" height="22" fill="var(--ok)"/>
+        <text x="365" y="176" font-size="11" class="on-fill">hyperscaler / lab contract</text>
+
+        <text x="16" y="216">New contracts (3–6 mo)</text>
+        <g fill="var(--accent)">
+          <rect x="358.6" y="201" width="26" height="22"/><rect x="389.6" y="201" width="26" height="22"/>
+          <rect x="420.6" y="201" width="26" height="22"/><rect x="451.6" y="201" width="26" height="22"/>
+          <rect x="482.6" y="201" width="26" height="22" opacity="0.8"/><rect x="513.6" y="201" width="26" height="22" opacity="0.65"/>
+          <rect x="544.6" y="201" width="26" height="22" opacity="0.5"/><rect x="575.6" y="201" width="26" height="22" opacity="0.35"/>
+        </g>
+        <text x="610" y="216" class="mono" font-size="11">reprices each term</text>
+
+        <text x="16" y="256">GPU book life (6 yr)</text>
+        <rect x="358.6" y="241" width="371.4" height="22" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+        <rect x="358.6" y="241" width="297.1" height="22" fill="var(--neutral-bar)" opacity="0.6"/>
+        <text x="16" y="282" class="muted" font-size="11.5">shaded: ~4-yr economic life (critics)</text>
+        <text x="662" y="256" class="mono muted" font-size="11">write-off</text>
+      </g>
+    </svg>
+    </div>
+    <figcaption>Illustrative, not modeled on a specific site. Bond maturities (2031–32), the 3–6 month terms on new contracts, and the 6- versus 4-year depreciation are reported facts. CoreWeave's Q3 interest guidance of $860–940M shows how much is accruing on capacity that has not started earning yet.</figcaption>
+  </figure>
+</section>
+
+<!-- ============ FUNDING LOOP ============ -->
+<section>
+  <div class="eyebrow">Funding</div>
+  <h2>The loop that worries bondholders</h2>
+  <p class="prose">A company that pays interest from new financing depends on the cost of that financing. CoreWeave pays interest and funds capex with fresh capital, so its share price and its bond yields feed each other. Deutsche Bank's Jim Reid called this "a self-fulfilling prophecy". Each step below has already happened at least once in October.</p>
+  <figure>
+    <div class="scroll">
+    <svg class="chart-wide" viewBox="0 0 700 440" role="img" aria-label="Five-step reinforcing loop: share price falls, equity and convertible window narrows, more reliance on high-yield and secured debt, yields and CDS rise so interest exceeds operating income, credit headlines and ratings pressure, which pushes the share price down again. The center lists exits: backstops, prepayments, asset sales, equity at any price.">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0,0 L10,5 L0,10 z" fill="var(--risk)"/>
+        </marker>
+      </defs>
+      <g fill="var(--surface)" stroke="var(--risk)" stroke-width="1.5">
+        <rect x="255" y="16" width="190" height="62"/>
+        <rect x="490" y="132" width="196" height="62"/>
+        <rect x="420" y="330" width="210" height="62"/>
+        <rect x="70" y="330" width="210" height="62"/>
+        <rect x="14" y="132" width="196" height="62"/>
+      </g>
+      <g font-size="13" text-anchor="middle">
+        <text x="350" y="42" font-weight="600">Share price falls</text>
+        <text x="350" y="62" class="muted" font-size="11.5">$55.60 on 22 Oct, −50% y/y</text>
+
+        <text x="588" y="158" font-weight="600">Equity &amp; convert window</text>
+        <text x="588" y="176" font-weight="600">narrows</text>
+
+        <text x="525" y="356" font-weight="600">More high-yield &amp;</text>
+        <text x="525" y="374" font-weight="600">secured debt needed</text>
+
+        <text x="175" y="352" font-weight="600">Yields &amp; CDS rise</text>
+        <text x="175" y="372" class="muted" font-size="11.5">interest &gt; operating income</text>
+
+        <text x="112" y="158" font-weight="600">Credit headlines,</text>
+        <text x="112" y="176" font-weight="600">ratings pressure</text>
+      </g>
+      <g stroke="var(--risk)" stroke-width="2" fill="none" marker-end="url(#arr)">
+        <path d="M445,52 Q560,70 584,128"/>
+        <path d="M600,196 Q610,270 560,326"/>
+        <path d="M418,362 L284,362"/>
+        <path d="M150,328 Q100,270 108,198"/>
+        <path d="M120,130 Q140,62 251,50"/>
+      </g>
+      <g text-anchor="middle">
+        <text x="350" y="196" style="font-family:var(--display)" font-size="16" font-weight="600" class="ok">Ways out of the loop</text>
+        <text x="350" y="220" font-size="12.5">Nvidia backstop (~$165B of guarantees</text>
+        <text x="350" y="237" font-size="12.5">and commitments across neoclouds)</text>
+        <text x="350" y="260" font-size="12.5">Customer prepayments or equity</text>
+        <text x="350" y="283" font-size="12.5">Sell sites or capacity · issue stock at any price</text>
+      </g>
+    </svg>
+    </div>
+    <figcaption>Each step happened in October 2026. The stock fell 15.5% on 14 Oct as the 2032 notes touched 15%. Lambda and Firmus pulled their IPOs. The CDS hit a record on 15 Oct. Jensen Huang said neoclouds lack "the working capital to fuel that growth." Lewitt's advice to management was to "sell as much stock as possible and pay down debt."</figcaption>
+  </figure>
+</section>
+
+<!-- ============ DEFAULT CONDITIONS ============ -->
+<section>
+  <div class="eyebrow">Default mechanics</div>
+  <h2>What has to line up for a default</h2>
+  <p class="prose">Wide spreads alone don't cause a default. A company defaults when it has an obligation due and cannot find the cash. For CoreWeave, that means all four conditions below have to hold at the same time. If any one fails, the company can most likely refinance, restructure quietly, or sell assets.</p>
+  <figure>
+    <div class="scroll">
+    <svg class="chart-wide" viewBox="0 0 740 330" role="img" aria-label="Four conditions feed an AND gate leading to default: cash runs short, markets stay shut, no one steps in, lenders won't extend.">
+      <g fill="var(--surface)" stroke="var(--rule)" stroke-width="1.5">
+        <rect x="14" y="14" width="300" height="64"/>
+        <rect x="14" y="92" width="300" height="64"/>
+        <rect x="14" y="170" width="300" height="64"/>
+        <rect x="14" y="248" width="300" height="64"/>
+      </g>
+      <g font-size="13">
+        <text x="28" y="40" font-weight="600">1 · Cash runs short</text>
+        <text x="28" y="60" class="muted" font-size="11.5">~$25B/yr burn; ~$0.9B/qtr interest; $10.6B due by 2027</text>
+        <text x="28" y="118" font-weight="600">2 · Markets stay shut</text>
+        <text x="28" y="138" class="muted" font-size="11.5">equity, converts, high yield and GPU-ABS all closed</text>
+        <text x="28" y="196" font-weight="600">3 · No one steps in</text>
+        <text x="28" y="216" class="muted" font-size="11.5">Nvidia, Microsoft or OpenAI, a buyer, private credit</text>
+        <text x="28" y="274" font-weight="600">4 · Lenders won't extend</text>
+        <text x="28" y="294" class="muted" font-size="11.5">asset-level lenders pick seizure over amend-and-extend</text>
+      </g>
+      <g stroke="var(--muted)" stroke-width="1.5" fill="none">
+        <path d="M314,46 L370,46 L370,128 L420,128"/>
+        <path d="M314,124 L360,124 L360,152 L420,152"/>
+        <path d="M314,202 L360,202 L360,176 L420,176"/>
+        <path d="M314,280 L370,280 L370,200 L420,200"/>
+      </g>
+      <path d="M420,108 L468,108 A56,56 0 0 1 468,220 L420,220 Z" fill="var(--risk-soft)" stroke="var(--risk)" stroke-width="2"/>
+      <text x="458" y="170" text-anchor="middle" class="mono risk" font-size="15" font-weight="500">AND</text>
+      <line x1="524" y1="164" x2="556" y2="164" stroke="var(--risk)" stroke-width="2"/>
+      <rect x="556" y="112" width="172" height="104" fill="var(--risk)"/>
+      <g text-anchor="middle" font-size="12.5">
+        <text x="642" y="138" font-weight="600" font-size="14" class="on-fill">Default</text>
+        <text x="642" y="160" class="on-fill">missed coupon,</text>
+        <text x="642" y="177" class="on-fill">covenant acceleration,</text>
+        <text x="642" y="194" class="on-fill">or distressed exchange</text>
+      </g>
+    </svg>
+    </div>
+    <figcaption>Condition 1 is already true and will stay true through 2027 on current guidance. Condition 2 came close in mid-October. Conditions 3 and 4 are why the base case is restructuring rather than liquidation. Nvidia has a strong commercial reason to keep its largest non-hyperscaler customer alive, and lenders do not want to repossess used GPUs into a falling rental market.</figcaption>
+  </figure>
+  <div class="grid3">
+    <div class="cell">
+      <span class="tag warn">Most likely form</span>
+      <h3>Distressed exchange</h3>
+      <p>Bondholders swap into new paper with a later maturity, a lower coupon, or equity. Rating agencies count this as a default even though no payment is missed. When companies with this mix of secured and unsecured debt default, this is usually how.</p>
+    </div>
+    <div class="cell">
+      <span class="tag risk">Fastest path</span>
+      <h3>Asset-level acceleration</h3>
+      <p>A customer cancels or renegotiates the contract a GPU loan is secured on. That breaches the loan's terms, the lender accelerates, and cross-default terms in the indentures may pull the notes in. Each of those depends on terms we have not read.</p>
+    </div>
+    <div class="cell">
+      <span class="tag ok">Least likely</span>
+      <h3>Plain missed coupon</h3>
+      <p>Simply running out of cash on a payment date would require every channel to be closed for several quarters, with no backstop. Management has many options to use before that happens.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRIGGERS ============ -->
+<section>
+  <div class="eyebrow">Triggers</div>
+  <h2>What could set it off</h2>
+  <p class="prose">The status column is my judgment from the October data, not a model output. <span class="pill live">Live</span> means the trigger is already visible in prices or news. <span class="pill building">Building</span> means early signs are present. <span class="pill remote">Remote</span> means it is possible but nothing points to it yet.</p>
+  <div class="scroll">
+    <table class="trigtable">
+      <thead><tr><th>Trigger</th><th>How it leads to default</th><th>What to watch</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Capital markets stay closed</strong></td>
+          <td>CoreWeave can't raise the ~$25B a year it burns. Capex gets cut and the cash cushion runs down toward the 2027 maturities.</td>
+          <td>New-issue yields and concessions. Neocloud IPOs (Lambda and Firmus were pulled). Convert and ATM activity.</td>
+          <td><span class="pill live">Live</span></td>
+        </tr>
+        <tr>
+          <td><strong>Anchor customer can't pay</strong></td>
+          <td>A lab with a funding gap renegotiates or walks away. The secured loan behind that contract is breached, and the backlog shrinks.</td>
+          <td>OpenAI's revenue (~$50B run rate against the $70B that had circulated). Its fundraising. Anthropic's IPO reception.</td>
+          <td><span class="pill building">Building</span></td>
+        </tr>
+        <tr>
+          <td><strong>GPU rental prices collapse</strong></td>
+          <td>Short contracts reprice below cost of capital. Collateral values fall, so loan-to-value tests tighten and recovery assumptions drop.</td>
+          <td>H100/B200 hourly rates (MoffettNathanson sees ~$10 → $4). Cheaper inference from models like DeepSeek.</td>
+          <td><span class="pill building">Building</span></td>
+        </tr>
+        <tr>
+          <td><strong>Construction or power delays</strong></td>
+          <td>Revenue start slips while interest accrues, and the funding gap gets longer. This has happened before: a third-party data center delay cut CoreWeave's 2025 guidance.</td>
+          <td>Quarterly MW energized against plan. Commentary on developer partners. Changes to capex timing.</td>
+          <td><span class="pill building">Building</span></td>
+        </tr>
+        <tr>
+          <td><strong>Rates stay higher for longer</strong></td>
+          <td>Every refinancing costs more. Floating-rate secured debt (SOFR + spread) reprices immediately.</td>
+          <td>10-yr above 5% (5.19% on 14 Oct). Fed hike odds. The HY CCC spread.</td>
+          <td><span class="pill building">Building</span></td>
+        </tr>
+        <tr>
+          <td><strong>Nvidia pulls back</strong></td>
+          <td>Losing the supplier backstop removes condition 3. Nvidia's own credit is already being hedged; CDS volume on the largest AI chip suppliers has risen roughly tenfold.</td>
+          <td>Nvidia's disclosed guarantees (~$165B). Its $500B financing framework. Any slower pace of neocloud allocations.</td>
+          <td><span class="pill remote">Remote</span></td>
+        </tr>
+        <tr>
+          <td><strong>Faster GPU obsolescence</strong></td>
+          <td>A new generation (Rubin) cuts the earning power of installed fleets before the 6-year write-off ends. That forces impairments and shrinks the collateral base.</td>
+          <td>Rental-rate gap between generations. Depreciation-life changes at peers. Impairment language in filings.</td>
+          <td><span class="pill building">Building</span></td>
+        </tr>
+        <tr>
+          <td><strong>Rating downgrades</strong></td>
+          <td>A move to B− or CCC shrinks the pool of buyers and closes more funding. An Oracle cut below BBB would force sales by IG-only funds and spread the selling across AI credit.</td>
+          <td>Agency outlooks. Oracle's CDS (~308bp). Whether funds holding only BB-rated debt start selling.</td>
+          <td><span class="pill building">Building</span></td>
+        </tr>
+        <tr>
+          <td><strong>Customer concentration shock</strong></td>
+          <td>Microsoft, historically the largest customer, builds its own capacity or doesn't renew. Revenue falls just as payments on the debt for that capacity are due.</td>
+          <td>Share of revenue by customer in 10-Qs. Microsoft capex mix. Renewal disclosures.</td>
+          <td><span class="pill remote">Remote</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ COUNTERWEIGHTS ============ -->
+<section>
+  <div class="eyebrow">The other side</div>
+  <h2>Why the bulls hold the bonds</h2>
+  <div class="two">
+    <ul class="plain prose">
+      <li><strong>The backlog is real and mostly investment grade.</strong> $104B, about two-thirds owed by Microsoft, Meta, IBM and similar counterparties. The CEO says it "more than supports all of our debt obligations."</li>
+      <li><strong>Compute is scarce right now.</strong> New contracts sign at about $40M per MW, 4 to 6 times last year. CoreWeave says it has sold nearly all its 2027 capacity.</li>
+    </ul>
+    <ul class="plain prose">
+      <li><strong>The debt is mostly secured on contracts.</strong> Asset-level loans are matched to customer payments. Default risk is concentrated in the unsecured notes, which are a minority of the stack.</li>
+      <li><strong>Strategic value.</strong> 1.5 GW running today and 4.2 GW planned. A hyperscaler, Nvidia or a private-equity consortium would likely buy the platform before letting it liquidate.</li>
+    </ul>
+  </div>
+  <p class="prose meta">This links to the repo framework note <em>ai-compute-commencement-wall-and-refinancing-trap</em>. That note concludes the loss lands on leveraged neoclouds, GPU-ABS and private credit, and that the most likely resolution is renegotiation and absorption rather than outright default.</p>
+</section>
+
+<section class="sources">
+  <div class="eyebrow">Sources</div>
+  <p><a href="https://www.cnbc.com/2026/10/14/coreweave-stock-bond-yields-ai-debt.html">CNBC, 14 Oct: CoreWeave shares tumble as bond yields near 15%</a></p>
+  <p><a href="https://www.cnbc.com/2026/10/15/coreweave-credit-default-swaps-hit-distress-levels-as-investors-sour-on-ai-debt.html">CNBC, 15 Oct: CoreWeave credit default swaps hit distress levels</a></p>
+  <p><a href="https://finance.yahoo.com/quote/CRWV/earnings/CRWV-Q2-2026-earnings_call-662772.html">CoreWeave Q2 FY2026 earnings call transcript</a> · <a href="https://www.investing.com/news/company-news/coreweave-q2-2026-slides-revenue-doubles-backlog-surges-246-93CH-4852949">Investing.com: Q2 2026 slides</a></p>
+  <p><a href="https://www.cnbc.com/2026/10/20/coreweave-debt-janus-henderson-lloyd.html">CNBC, 20 Oct: Janus Henderson on holding CoreWeave debt</a></p>
+  <p>Repo digests, Oct 2026: 10-14 (Ree, Lewitt, Luria, Parekh), 10-21 (record CDS 1,194.5bp), 10-23 (Rubinstein, Nvidia guarantees, CCC/BB spreads), 10-27 (Haircut's borrowing history, Forbes CDS ladder), 10-28 (depreciation debate).</p>
+</section>
+
+</div>
+</body>
+</html>
