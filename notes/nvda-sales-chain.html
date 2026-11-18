@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nvidia GPU Sales Chain</title>
+<meta name="description" content="How Nvidia GPUs reach Southeast Asian clouds like Megaspeed, why revenue-by-headquarters hides the channel, and the export-law exposure of each party in the chain.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231d4f91'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%23fff' font-family='sans-serif'%3EN%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --surface-2: #eef2f7; --border: #d6dde8;
+  --text: #16202d; --text-dim: #536175;
+  --accent: #1d4f91; --accent-soft: #e3ecf8;
+  --grey: #b9c0ca; --grey-2: #d9dee6;
+  --neg: #b03a2e; --neg-soft: #f8e5e2;
+  --pos: #2f6b4f; --pos-soft: #e2f0e8;
+  --amber: #a8570f; --amber-soft: #f8ecdf;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e141d; --surface: #151d29; --surface-2: #1b2534; --border: #2a3648;
+    --text: #e3e9f1; --text-dim: #9aa8bb;
+    --accent: #74a8eb; --accent-soft: #1a2c45;
+    --grey: #4d5a6c; --grey-2: #2c3747;
+    --neg: #ee8a7d; --neg-soft: #3d1f1c;
+    --pos: #74c49a; --pos-soft: #183326;
+    --amber: #e3a660; --amber-soft: #3a2a19;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e141d; --surface: #151d29; --surface-2: #1b2534; --border: #2a3648;
+  --text: #e3e9f1; --text-dim: #9aa8bb;
+  --accent: #74a8eb; --accent-soft: #1a2c45;
+  --grey: #4d5a6c; --grey-2: #2c3747;
+  --neg: #ee8a7d; --neg-soft: #3d1f1c;
+  --pos: #74c49a; --pos-soft: #183326;
+  --amber: #e3a660; --amber-soft: #3a2a19;
+}
+* { box-sizing: border-box; }
+html { font-size: 17px; scroll-behavior: smooth; scroll-padding-top: 4rem; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif; line-height: 1.55; overflow-wrap: break-word; }
+.wrap { max-width: 68rem; margin: 0 auto; padding: 0 1rem 4rem; }
+h1, h2, h3 { text-wrap: balance; line-height: 1.2; }
+h1 { font-family: "IBM Plex Serif", Georgia, serif; font-size: 2.1rem; margin: 0 0 .6rem; }
+h2 { font-size: 1.45rem; margin: 0 0 .4rem; }
+h3 { font-size: 1.08rem; margin: 1.5rem 0 .5rem; }
+p { max-width: 70ch; margin: .5rem 0; }
+ul, ol { padding-left: 1.3rem; } li { margin: .25rem 0; }
+.mono, .num { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+.dim { color: var(--text-dim); } .small { font-size: .85rem; }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header.top { padding: 2.2rem 0 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem; }
+.byline { color: var(--text-dim); font-size: .9rem; }
+.conf { display: inline-block; font-family: "IBM Plex Mono", monospace; font-size: .7rem; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase; padding: .1rem .45rem; border-radius: 3px;
+  background: var(--amber-soft); color: var(--amber); vertical-align: .1em; }
+nav.toc { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .5rem 0; margin-bottom: 1.2rem; overflow-x: auto; white-space: nowrap; }
+nav.toc a { display: inline-block; margin-right: 1rem; font-size: .85rem; text-decoration: none; color: var(--text-dim); }
+nav.toc a:hover { color: var(--accent); }
+
+section { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.3rem 1.3rem 1.1rem; margin: 0 0 1.2rem; }
+.lead { font-size: 1.05rem; }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .8rem; margin: 1rem 0 .4rem; }
+.tile { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: .8rem .9rem; }
+.tile .big { font-family: "IBM Plex Mono", monospace; font-size: 1.6rem; font-weight: 600; color: var(--accent); line-height: 1.1; }
+.tile .lbl { font-size: .85rem; color: var(--text-dim); margin-top: .3rem; }
+
+.tbl { width: 100%; overflow-x: auto; margin: .6rem 0; }
+table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+th, td { text-align: left; vertical-align: top; padding: .45rem .55rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 600; white-space: nowrap; }
+td.num, th.num { text-align: right; white-space: nowrap; }
+tr.total td { font-weight: 600; border-top: 2px solid var(--border); }
+.pill { display: inline-block; font-size: .72rem; font-weight: 600; padding: .05rem .4rem; border-radius: 3px; white-space: nowrap; }
+.pill.neg { background: var(--neg-soft); color: var(--neg); }
+.pill.mix { background: var(--amber-soft); color: var(--amber); }
+.pill.pos { background: var(--pos-soft); color: var(--pos); }
+
+.chart { margin: 1rem 0 .4rem; }
+.chart-title { font-weight: 600; margin-bottom: .2rem; }
+.chart-sub { font-size: .82rem; color: var(--text-dim); margin-bottom: .7rem; }
+.grp { display: block; font-size: .72rem; }
+/* diverging bars */
+.drow { display: grid; grid-template-columns: 12rem 1fr; gap: .6rem; align-items: center; min-height: 2.1rem; }
+.dlab { font-size: .86rem; line-height: 1.2; }
+.dtrack { position: relative; height: 1.1rem; }
+.dzero { position: absolute; top: -.5rem; bottom: -.5rem; width: 1px; background: var(--text-dim); }
+.dbar { position: absolute; top: 0; height: 100%; border-radius: 2px; }
+.dbar.down { background: var(--grey); } .dbar.up { background: var(--accent); }
+.dval { position: absolute; top: -.05rem; font-size: .76rem; color: var(--text-dim); white-space: nowrap; }
+/* whiskers */
+.wrow { display: grid; grid-template-columns: 14rem 1fr; gap: .6rem; align-items: center; min-height: 3rem; }
+.wlab { font-size: .86rem; line-height: 1.2; }
+.wtrack { position: relative; height: 2.4rem; }
+.wline { position: absolute; top: .55rem; height: 3px; background: var(--grey); border-radius: 2px; }
+.wdot { position: absolute; top: .25rem; width: .8rem; height: .8rem; margin-left: -.4rem; border-radius: 50%; background: var(--accent); }
+.wv { position: absolute; top: 1.15rem; transform: translateX(-50%); font-size: .72rem; color: var(--text-dim); white-space: nowrap; }
+.wv.base { color: var(--accent); font-weight: 600; }
+/* tier bars */
+.trow { display: grid; grid-template-columns: 14rem 1fr; gap: .6rem; align-items: center; min-height: 2.6rem; }
+.tlab { font-size: .86rem; line-height: 1.2; }
+.ttrack { position: relative; height: 1.2rem; display: flex; }
+.seg { height: 100%; }
+.seg.uc { background: var(--accent); border-radius: 2px 0 0 2px; }
+.seg.ns { background: var(--grey-2); border: 1px solid var(--grey); border-left: 0; }
+.seg.kept { background: var(--grey); border-radius: 2px 0 0 2px; }
+.seg.lost { background: var(--neg); opacity: .75; }
+.tv { margin-left: .5rem; font-size: .76rem; color: var(--text-dim); white-space: nowrap; align-self: center; }
+.legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: .8rem; color: var(--text-dim); margin: .3rem 0 .6rem; }
+.sw { display: inline-block; width: .8rem; height: .8rem; border-radius: 2px; vertical-align: -.1em; margin-right: .3rem; }
+.formula { font-family: "IBM Plex Mono", monospace; background: var(--surface-2); border: 1px solid var(--border);
+  border-radius: 6px; padding: .6rem .8rem; font-size: .88rem; overflow-x: auto; }
+.callout { border-left: 3px solid var(--amber); background: var(--amber-soft); padding: .6rem .9rem; border-radius: 0 6px 6px 0; margin: .8rem 0; }
+.levers { counter-reset: lv; list-style: none; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr)); gap: .6rem; }
+.levers li { counter-increment: lv; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: .6rem .8rem .6rem 2.4rem; position: relative; margin: 0; font-size: .9rem; }
+.levers li::before { content: counter(lv); position: absolute; left: .8rem; top: .55rem; font-family: "IBM Plex Mono", monospace; font-weight: 600; color: var(--accent); }
+ul.check { list-style: none; padding-left: 0; }
+ul.check li::before { content: "☐ "; color: var(--text-dim); }
+footer { font-size: .8rem; color: var(--text-dim); margin-top: 1.5rem; }
+
+@media (max-width: 640px) {
+  h1 { font-size: 1.6rem; }
+  section { padding: 1rem .9rem; }
+  .drow, .wrow, .trow { grid-template-columns: 1fr; gap: .15rem; }
+  .drow { margin-bottom: .45rem; }
+  .wrow, .trow { margin-bottom: .5rem; }
+  .ttrack { padding-right: 0; }
+}
+.wl { font-family: ui-monospace, Menlo, monospace; font-size: 0.85em; }
+</style>
+
+
+<style>
+.toc { display:flex; flex-wrap:wrap; gap:.3rem .9rem; font-size:.88rem; margin:.6rem 0 1.4rem; }
+section.sec { background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1.1rem 1.2rem; margin:1rem 0; }
+section.sec > h2 { margin-top:0; }
+pre.code { background:var(--surface-2); border:1px solid var(--border); border-radius:4px; padding:.8rem; overflow-x:auto; font-size:.8rem; line-height:1.35; }
+sup.cite a { font-size:.7rem; text-decoration:none; font-family:"IBM Plex Mono",monospace; }
+.hrow { display:grid; grid-template-columns:15rem 1fr; gap:.6rem; align-items:center; min-height:1.9rem; }
+.hlab { font-size:.84rem; line-height:1.2; }
+.htrack { position:relative; height:1rem; background:var(--surface-2); border-radius:2px; }
+.hbar { position:absolute; left:0; top:0; height:100%; border-radius:2px; background:var(--accent); }
+.hbar.pess { background:var(--neg); } .hbar.now { background:var(--grey); }
+.hval { position:absolute; top:-.1rem; z-index:1; background:var(--surface); padding:0 .2rem; font-size:.75rem; color:var(--text-dim); white-space:nowrap; font-family:"IBM Plex Mono",monospace; }
+.mark { position:absolute; top:-.3rem; bottom:-.3rem; width:2px; background:var(--text); }
+.stack { display:flex; height:1.3rem; border-radius:2px; overflow:hidden; }
+.stack span { display:block; height:100%; }
+.srow { display:grid; grid-template-columns:7rem 1fr; gap:.6rem; align-items:center; margin:.35rem 0; font-size:.84rem; }
+.flow { display:flex; flex-direction:column; align-items:stretch; max-width:40rem; margin:.8rem 0; }
+.fbox { border:1px solid var(--border); background:var(--surface-2); border-radius:5px; padding:.55rem .8rem; }
+.fbox b { display:block; } .fbox small { color:var(--text-dim); }
+.fbox.ends { background:var(--accent-soft); border-color:var(--accent); }
+.farrow { text-align:center; color:var(--text-dim); font-size:.8rem; padding:.15rem 0; }
+.tbl { overflow-x:auto; }
+p.takeaway { background:var(--accent-soft); border-left:3px solid var(--accent); border-radius:4px; padding:.6rem .8rem; margin:1rem 0 .4rem; }
+@media (max-width:640px) { .hrow { grid-template-columns:1fr; gap:.15rem; margin-bottom:.45rem; } .srow { grid-template-columns:1fr; } section.sec { padding:.9rem .8rem; } }
+</style>
+
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <h1>How Nvidia GPUs Reach Southeast Asian Clouds</h1>
+  <p class="lead">The sales chain from Nvidia to the Chinese firms renting compute in Southeast Asia, why Nvidia&#x27;s filings can&#x27;t show it, why Nvidia still knew the Megaspeed end customer, and who in the chain is legally exposed.</p>
+  <div class="byline">Updated 2026-11-17 · <span class="conf">Confidence: medium</span> · Wiki page: <a href="nvda-sales-chain.html" class="mono">nvidia-gpu-sales-chain-southeast-asia-megaspeed-2026.md</a></div>
+</header>
+<nav class="toc" aria-label="Sections"><a href="#summary">Summary</a><a href="#1-why-nvidia-s-filings-can-t-show-the-ch">Why Nvidia&#x27;s filings can&#x27;t show the channel</a><a href="#2-which-vendors-supply-southeast-asian-c">Which vendors supply Southeast Asian clouds</a><a href="#3-the-sales-chain-from-nvidia-to-the-ren">The sales chain from Nvidia to the renter</a><a href="#4-why-nvidia-still-knows-the-end-custome">Why Nvidia still knows the end customer: the Megaspeed case</a><a href="#5-is-the-rest-of-the-chain-exposed">Is the rest of the chain exposed?</a><a href="#6-what-it-means-for-nvidia">What it means for Nvidia</a><a href="#cross-references">Cross-references</a></nav>
+<section class="sec" id="summary"><h2>Summary</h2>
+<div class="tiles"><div class="tile"><div class="big">3</div><div class="lbl">Revenue lines one Johor rack can land in</div></div><div class="tile"><div class="big">136,000</div><div class="lbl">Nvidia chips Megaspeed imported (≥$4.6B)</div></div><div class="tile"><div class="big">~50,000</div><div class="lbl">Gap between imports and Nvidia&#x27;s count to BIS</div></div><div class="tile"><div class="big">Unproven</div><div class="lbl">Chinese ownership or diversion into China</div></div></div>
+<p><strong>Question:</strong> how do Nvidia GPUs get from Nvidia to a Southeast Asian cloud like Megaspeed and on to the Chinese firms renting them, why can&#x27;t Nvidia&#x27;s filings show that channel, why is Nvidia still blamed for Megaspeed, and who in the chain is legally exposed?</p>
+<p><strong>Short answer:</strong></p>
+<ul><li>A rack in Johor can be booked as US-, Taiwan- or &quot;Other&quot;-headquartered revenue depending on who invoiced it, so the 10-Q can&#x27;t show the remote-access channel.</li><li>Evidence on vendors is thin. It points most to US system makers. For Megaspeed itself, Supermicro says it was never a customer, and Culper&#x27;s unverified claim names Inspur&#x27;s US arm, Aivres.</li><li>Distributors, resellers and brokers can sit between the server maker and the renter, but Nvidia still knows its large end customers through its Cloud Partner program and allocation. Megaspeed was a Cloud Partner.</li><li>Sales to Megaspeed broke export rules only if it is effectively Chinese-owned or chips went into China. Both are unproven. If either holds, the parties that knew are most exposed: Megaspeed, Aivres if Culper is right, and Nvidia.</li></ul>
+<p>Split out on November 16 from <a class="xref" href="nvda-export-rule.html">nvda-china-export-rule-revenue-at-risk-2026-11</a>, which sizes what the rules do to Nvidia&#x27;s revenue, EPS and stock. This page covers the channel and enforcement and should change only when new facts about the chain come out.</p>
+</section>
+<section class="sec" id="1-why-nvidia-s-filings-can-t-show-the-ch"><h2>1. Why Nvidia&#x27;s filings can&#x27;t show the channel</h2>
+
+<p>Nvidia reports revenue by customer headquarters. Nvidia estimates 76% of FY2026 Data Center revenue from Taiwan-HQ customers went to US and European end customers (86% in the latest quarter, per Dolphin Research). The remaining 14-24% is the only end-customer data the filings give for this channel (<a class="xref" href="nvda-export-rule.html">nvda-china-export-rule-revenue-at-risk-2026-11</a> §2 has the full table).</p>
+<p><strong>One rack, three possible revenue lines.</strong> Nvidia books a sale under the headquarters of whoever it invoices, and Southeast Asian GPU clouds rarely buy loose GPUs from Nvidia. A server that ends up in Johor and is rented by a Chinese lab can show up as:</p>
+<ul><li><strong>US HQ</strong>, if it came through Supermicro, Dell or HPE. Mid-sized clouds usually buy standard GPU servers with support and financing from these vendors. The Singapore fraud case shows this route. In February 2025 three men were charged with misleading Dell and Supermicro about the end users of servers that then went to Malaysia (<a href="https://www.techpartner.news/news/singapore-charges-men-with-defrauding-dell-super-micro-615497">Reuters via TechPartner</a>). Prosecutors put the transactions at about $390M and said the servers may have contained Nvidia chips, without saying whether they were export-controlled (<a href="https://theedgemalaysia.com/node/747840">The Edge Malaysia</a>). A fourth person was charged in April 2026 (<a href="https://www.freemalaysiatoday.com/category/world/2026/04/02/singapore-charges-one-more-individual-with-ai-chip-fraud">Free Malaysia Today</a>).</li><li><strong>Taiwan HQ</strong>, if it came through an ODM. The large ODMs (Foxconn, Quanta, Wistron/Wiwynn) mostly build custom racks for hyperscalers. Smaller clouds are more likely to buy from the ODMs&#x27; own server brands (Gigabyte, Asus, Inventec) or through resellers. This is the only line where Nvidia estimates end-customer geography, in the 14-24% that doesn&#x27;t go to the US or Europe.</li><li><strong>Other</strong>, if Nvidia or a reseller invoiced the cloud directly, for example for DGX systems sold to an Nvidia Cloud Partner. This line is only $1.3B a quarter. YTL&#x27;s GB200 NVL72 cluster in Johor is offered through Nvidia&#x27;s DGX Cloud, and no server maker is named (<a href="https://www.businesstoday.com.my/2024/03/19/ytl-power-to-run-nvidias-gb200-ai-supercomputer-cloud-through-data-centre-facility-in-johor/">Business Today Malaysia</a>).</li></ul>
+<p>Even a full end-customer breakdown would show only where the servers sit, not who rents them. That&#x27;s why the remote-access estimates on <a class="xref" href="nvda-export-rule.html">nvda-china-export-rule-revenue-at-risk-2026-11</a> (§4) come from modeled rental demand, not from any filing line.</p>
+</section>
+<section class="sec" id="2-which-vendors-supply-southeast-asian-c"><h2>2. Which vendors supply Southeast Asian clouds</h2>
+
+<p>There is no systematic data. Singtel, Indosat/Lintasarta and Siam AI don&#x27;t name their server vendors. The Singapore court case in §1 and Supermicro&#x27;s Johor plant point most to US system makers. Two more facts:</p>
+<ul><li><strong>Supermicro and Wiwynn both assemble racks in Johor.</strong> Supermicro&#x27;s plant has shipped up to 5,000 racks a month since late 2024, and TrendForce named the two as most exposed to Malaysia&#x27;s July 2025 permit rule (<a href="https://www.trendforce.com/news/2025/07/15/news-malaysias-ai-chip-curbs-shake-server-supply-chains-may-hit-super-micro-and-taiwans-wiwynn/">TrendForce</a>). Wiwynn&#x27;s plant mainly serves US hyperscalers, so a factory in Malaysia doesn&#x27;t mean sales to Malaysian clouds.</li><li><strong>Supermicro says Megaspeed was never a customer</strong> (Bloomberg, which also reports prosecutors are examining whether the Singapore-case entities smuggled Supermicro products) <sup class="cite"><span class="wl">[digest 2026-11-15]</span></sup>. That rules out the most likely US vendor for Megaspeed itself.</li><li><strong>Inspur&#x27;s international brands are a fourth route.</strong> Aivres is Inspur&#x27;s US-registered subsidiary, renamed in August 2024, and KAYTUS is its Singapore arm (<a href="https://www.servethehome.com/aivres-kr6288-nvidia-hgx-h200-server-review-intel-xeon/">ServeTheHome</a>, <a href="https://gpusmith.com/vendors/aivres">GPUSmith</a>). The claim that Megaspeed got its Nvidia GPUs and servers through Aivres rather than from Nvidia comes from <strong>Culper&#x27;s May short report</strong> <sup class="cite"><span class="wl">[digest 2026-11-09]</span></sup>. Tech Insider repeats it (<a href="https://tech-insider.org/megaspeed-speedmatrix-malaysia-nvidia-chips-2026/">Tech Insider</a>). It is <strong>unverified</strong>: Culper is a short seller, and Bloomberg&#x27;s and the NYT&#x27;s figures count Megaspeed&#x27;s imports by chip, not by supplier. GPUSmith also says Aivres was added to the Entity List in March 2025, which I haven&#x27;t checked against the official list. If the Megaspeed report holds, the filings don&#x27;t say which headquarters Nvidia assigns to a US-registered company with a Chinese parent.</li></ul>
+</section>
+<section class="sec" id="3-the-sales-chain-from-nvidia-to-the-ren"><h2>3. The sales chain from Nvidia to the renter</h2>
+
+<p>Nvidia&#x27;s revenue table records only the first sale. Distributors and resellers often sit between the server maker and the cloud, and a broker or front company can sit between the cloud and the renter. This section draws on general knowledge of the industry, not a sourced map of any one cloud&#x27;s suppliers.</p>
+<div class="flow" role="img" aria-label="Sales chain from Nvidia to the renter"><div class="fbox ends"><b>Nvidia</b><small>Sells GPUs, HGX baseboards or complete DGX systems</small></div><div class="farrow">▼ sells finished servers or racks</div><div class="fbox "><b>Server builder</b><small>ODM (Foxconn, Quanta, Wiwynn) or OEM (Supermicro, Dell, HPE, Gigabyte, Aivres). Nvidia books the sale under this buyer&#x27;s headquarters in most cases.</small></div><div class="farrow">▼ </div><div class="fbox "><b>Distributor</b><small>Wholesale: holds stock, offers credit, handles import and logistics</small></div><div class="farrow">▼ </div><div class="fbox "><b>Reseller / systems integrator</b><small>Designs, installs and services the cluster</small></div><div class="farrow">▼ </div><div class="fbox "><b>Cloud operator</b><small>Megaspeed, YTL, Singtel...: owns the racks in a data center</small></div><div class="farrow">▼ rents compute by the hour or on contract</div><div class="fbox ends"><b>Renter</b><small>Sometimes through a broker or a Singapore-registered front company</small></div></div>
+<p>Not every sale uses every layer. Hyperscalers buy straight from ODMs. Mid-sized clouds usually buy from an OEM, often through a reseller. Small buyers go through all of them.</p>
+<div class="tbl"><table><thead><tr><th>Layer</th><th>Role</th><th>Examples</th></tr></thead><tbody><tr><td>Distributor</td><td>Buys in volume from OEMs and sometimes from Nvidia, holds stock, gives resellers credit, clears customs; thin margins</td><td>TD SYNNEX, Ingram Micro, Arrow, Avnet; in Asia, WPG Holdings (Taiwan) and VSTECS (Malaysia)</td></tr><tr><td>Reseller / systems integrator</td><td>Sizes the cluster, adds networking and storage, installs and supports it, sometimes arranges financing; certified through Nvidia&#x27;s partner program</td><td>World Wide Technology, CDW, SHI in the US; mostly local integrators and trading firms in Southeast Asia</td></tr><tr><td>Compute broker (after the cloud)</td><td>Resells or sub-leases capacity, or rents it under its own name for someone else</td><td>GPU marketplaces; companies on the &quot;Chinese capital, Singapore headquarters&quot; model, which Hello China Tech describes for Manus&#x27;s parent (a corporate template, not a documented compute broker) <sup class="cite"><span class="wl">[digest 2026-10-12]</span></sup></td></tr></tbody></table></div>
+<p>What this means for the filings and the rule:</p>
+<ul><li><strong>The sale is booked before the middle layers.</strong> A server sold through Supermicro is US-HQ revenue whether it ends up in Texas or Johor. Only when a distributor buys from Nvidia directly is the sale booked under the distributor&#x27;s headquarters: the US for TD SYNNEX or Arrow, Taiwan for WPG, &quot;Other&quot; for VSTECS. Nvidia&#x27;s past 10-Ks have estimated the revenue share of large indirect customers that buy &quot;through system integrators and distributors,&quot; so Nvidia knows these layers carry real volume even though its headquarters table can&#x27;t show where it goes.</li><li><strong>Diversion happens in the middle.</strong> In the Singapore case above, the charges say intermediaries bought from Dell and Supermicro while misstating the end user. Every added layer is another party that can make that false statement.</li><li><strong>The rule moves responsibility down the chain.</strong> The license requirement falls on whoever supplies a data center that serves Chinese firms, not only on the vendor at the top. The rule text (§ 744.24) also reaches a non-Chinese middleman that trains models for, or provides them to, a Chinese company, and makes suppliers obtain the data center&#x27;s checks for direct or indirect Chinese ownership of its customers (Note 3). US-headquartered buyers are exempt only from the five-country shipment licenses, not from the remote-access control. The monthly reports behind that exemption (§ 743.10) are filed by the seller, meaning Nvidia, Dell, Supermicro or the ODM, and name every party, every parent company, the final site, and each product&#x27;s SKU, TPP and quantity. That gives BIS a monthly chip count per site past the first sale. The reports say nothing about tenants; those are covered by the rule&#x27;s requirement that suppliers obtain the data center&#x27;s checks for Chinese ownership, and a data center that won&#x27;t provide them counts as a red flag. Details in <a class="xref" href="nvda-export-rule.html">nvda-china-export-rule-revenue-at-risk-2026-11</a> §1.1.</li></ul>
+</section>
+<section class="sec" id="4-why-nvidia-still-knows-the-end-custome"><h2>4. Why Nvidia still knows the end customer: the Megaspeed case</h2>
+
+<p>The layers above move invoices and paperwork, not knowledge. Commentary that Nvidia &quot;should have known&quot; about Megaspeed is aimed at the right company, because Nvidia controls who gets its GPUs:</p>
+<ul><li><strong>Megaspeed was an official Nvidia Cloud Partner</strong>, and was still listed as one in early November <sup class="cite"><span class="wl">[digest 2026-11-09]</span></sup>. Nvidia chooses its cloud partners, and they get priority supply, partner pricing, engineering help and co-marketing.</li><li><strong>Supply is allocated by end customer.</strong> This is general industry practice, not Megaspeed-specific reporting. While GPUs were scarce in 2024-25, Nvidia decided how many each server maker got, and server makers typically had to name the customer the racks were for. Whoever invoiced Megaspeed, Nvidia would normally have seen its name on the order.</li><li><strong>Nvidia acted as Megaspeed&#x27;s supplier.</strong> One report says Nvidia stopped sales to Megaspeed in June 2025 (secondary; not checked against the primary source). Nvidia also inspected Megaspeed&#x27;s sites and reported its chip count to BIS, a count 50,000 units short of Megaspeed&#x27;s imports <sup class="cite"><span class="wl">[china-ai-compute-access-export-controls-2026]</span></sup>.</li></ul>
+<p>The warning signs critics cite:</p>
+<ul><li>Founded in 2023, Megaspeed imported at least <strong>136,000</strong> Nvidia chips worth at least <strong>$4.6B</strong>, more than half Blackwell <sup class="cite"><span class="wl">[china-ai-compute-access-export-controls-2026]</span></sup>.</li><li>The FT reported that Alibaba financed Megaspeed through subsidiaries and was its largest customer, and staff records show it was built by Alibaba Cloud&#x27;s people <sup class="cite"><span class="wl">[digest 2026-11-13]</span></sup>.</li><li>Commerce found Nvidia equipment still boxed at a Malaysian site in September 2024. The big orders began weeks after Jensen Huang was photographed with Alice Huang in June 2024 <sup class="cite"><span class="wl">[digest 2026-11-12]</span></sup>.</li><li>McGuire (CFR) says &quot;we have information indicating Commerce knew about this for months&quot; (<a href="https://www.chinatalk.media/p/bis-finally-takes-a-stand">ChinaTalk</a>).</li><li>Megaspeed&#x27;s auditor and corporate secretary have since resigned <sup class="cite"><span class="wl">[digest 2026-11-15]</span></sup>.</li></ul>
+<p>Under the EAR, &quot;knowledge&quot; includes awareness of a high probability, and BIS&#x27;s red-flag guidance names new customers, orders out of line with the business, and unclear ownership. The license requirement binds every party that handles the chips. The knowledge standard decides who is liable, and Nvidia, which picked Megaspeed as a partner, knew more than anyone else in the chain.</p>
+<p>Where the criticism goes too far:</p>
+<ul><li><strong>Some renting to Chinese firms from Malaysia was legal before November 19, but less than this page first said.</strong> Before the rule, no license was needed to supply a non-Chinese-owned data center whose Chinese tenants were a minority of its use. The rule&#x27;s preamble says the headquarters control (§ 744.23(a)(3)) &quot;has never been limited&quot; to sales to Chinese-owned firms. It also covers chips shipped on their behalf, including where a Chinese firm &quot;was the exclusive or primary (greater than 50 percent of total compute) remote end user.&quot; BIS tells violators to file voluntary self-disclosures. That is BIS&#x27;s interpretation, stated in the rule and untested in court, but it is the reading enforcement will use.</li><li><strong>So the legal questions are ownership and main user.</strong> If Alibaba is effectively Megaspeed&#x27;s parent, the headquarters rule in place since October 2023 required a license for every sale of advanced chips to it, wherever it was located. The FT&#x27;s financing report points that way, but it&#x27;s unproven. On BIS&#x27;s reading, a second route applies: if Alibaba or other Chinese firms used more than half of Megaspeed&#x27;s compute, as the FT&#x27;s report that Alibaba was its largest customer suggests, sales made with &quot;knowledge&quot; of that needed a license even without Chinese ownership. &quot;Should have known&quot; means Nvidia should have looked through both Megaspeed&#x27;s ownership and its customers.</li><li><strong>Physical diversion into China is unproven.</strong> Megaspeed denies wrongdoing, Malaysia says it has no evidence, and Epoch models 0 to 50,000 chips actually diverted.</li></ul>
+</section>
+<section class="sec" id="5-is-the-rest-of-the-chain-exposed"><h2>5. Is the rest of the chain exposed?</h2>
+
+<p>Only if there was a violation, and then mostly the parties that knew. A general reading of the rules, not legal advice:</p>
+<ul><li><strong>Reach.</strong> Nvidia&#x27;s GPUs are made by TSMC in Taiwan, but they are subject to the EAR as direct products of US technology (the foreign direct product rule), and controls follow them wherever they go. So any exporter, re-exporter or in-country transferor needs a license where one is required, including non-US distributors and Malaysian subsidiaries.</li><li><strong>Civil liability.</strong> Shipping without a required license can be penalized regardless of knowledge. In practice enforcement targets the parties that knew or ignored red flags.</li><li><strong>Knowledge-based violations.</strong> Prohibited end-use or end-user sales, and proceeding with a transaction knowing a violation has occurred or will occur (General Prohibition 10, § 736.2(b)(10)), need &quot;knowledge.&quot; Under § 772.1 that includes awareness of a high probability, inferred from conscious disregard or willful avoidance of facts. This is where &quot;should have known&quot; bites.</li><li><strong>Criminal charges</strong> need willfulness.</li><li><strong>The Entity List needs no proven violation.</strong> Commerce can list a firm as a national-security risk. CNAS recommends listing Megaspeed and its affiliates <sup class="cite"><span class="wl">[china-ai-compute-access-export-controls-2026]</span></sup>. It is the fastest tool, and could cut Megaspeed off within weeks.</li></ul>
+<p>The first question is whether any sale broke the rules. Sales to Megaspeed were violations if Megaspeed is effectively China-headquartered (Alibaba as real parent), if chips physically went to China, or, on BIS&#x27;s reading in the November rule, if Chinese firms were its primary (&gt;50%) users and the seller knew it. None is proven. If none holds, no one in the chain committed an export violation. The third test is the easiest to meet: it needs evidence about customers, not about ownership or chip movements.</p>
+<div class="tbl"><table><thead><tr><th>Party</th><th>Role</th><th>Status</th></tr></thead><tbody><tr><td>Megaspeed / Speedmatrix (Malaysian subsidiary)</td><td>Buyer, importer, cloud operator</td><td>The main target. Treasury wanted it blacklisted months ago, per Bessent <sup class="cite"><span class="wl">[digest 2026-11-13]</span></sup>; Malaysia is weighing GPU-import declarations for data centers (<a href="https://www.thevibes.com/articles/news/129471/malaysia-moves-to-tighten-data-centre-controls-amid-scrutiny-over-nvidia-chip-exports">The Vibes</a>); Megaspeed denies wrongdoing.</td></tr><tr><td>Aivres (Inspur&#x27;s US subsidiary)</td><td>Alleged supplier, per Culper</td><td>Reportedly Entity-listed in March 2025 (unverified). The most exposed party in the chain if it sold Nvidia servers to Megaspeed.</td></tr><tr><td>Apex (Culper calls it an Alibaba shell)</td><td>Took Speedmatrix&#x27;s whole business as collateral</td><td>Bears on the ownership question; no action reported <sup class="cite"><span class="wl">[digest 2026-11-09]</span></sup></td></tr><tr><td>Bridge Data Centres (Bain-owned)</td><td>Hosted Megaspeed racks in Johor</td><td>Evicted Megaspeed; no action reported <sup class="cite"><span class="wl">[digest 2026-11-09]</span></sup></td></tr><tr><td>Supermicro</td><td>Not a Megaspeed supplier, it says</td><td>Prosecutors are examining whether entities in the Singapore case smuggled its products <sup class="cite"><span class="wl">[digest 2026-11-15]</span></sup></td></tr><tr><td>Nvidia</td><td>Chip supplier and Cloud Partner sponsor</td><td>Three DOJ probes, per Semafor; calls to suspend its export licenses; Huang is not a target of the espionage probe <sup class="cite"><span class="wl">[digest 2026-11-13]</span></sup>. BIS&#x27;s primary-user reading raises its exposure: Nvidia&#x27;s own rule that cloud partners keep 51% of capacity for non-Chinese customers shows it was tracking the same test.</td></tr></tbody></table></div>
+<p>Contract manufacturers that build to Nvidia&#x27;s allocation knew less than Nvidia, and distributors or resellers that never saw the end customer&#x27;s name are least exposed. For investors the cost to the rest of the chain is mainly compliance from here on: US system makers keep their exemption only by filing monthly reports, and Southeast Asian data center owners like Bridge now have to check whom their tenants serve. That adds cost and slows sales into the region, which fits the pessimistic case&#x27;s assumption of licensing delays for non-Chinese buyers there (<a class="xref" href="nvda-export-rule.html">nvda-china-export-rule-revenue-at-risk-2026-11</a> §4).</p>
+</section>
+<section class="sec" id="6-what-it-means-for-nvidia"><h2>6. What it means for Nvidia</h2>
+
+<p>Why Nvidia sold to Asian neoclouds at all: McGuire cites a WSJ account of Huang telling neocloud CEOs about a Japanese soup vendor who refused to sell a second bowl, keeping prices high and his customer base wide. The worry behind it is concentration in a handful of US hyperscalers that can each buy $100-200B of chips a year and could switch to AMD or their own chips. McGuire&#x27;s view is that at Nvidia&#x27;s scale the only other large customer base is China, so diversification pulled it toward Chinese demand.</p>
+<p>Investors can&#x27;t see the end customer in the revenue table, but Nvidia can. That gap is why customer reporting and ownership look-through are the measures that bite, and why the financial cost of the channel (a ~2% net revenue loss in the most likely case, <a class="xref" href="nvda-export-rule.html">nvda-china-export-rule-revenue-at-risk-2026-11</a> §4) is smaller than the legal and political cost of having known, which includes the H200 license threats and the Huang ouster.</p>
+<p>Things to watch:</p>
+<ul><li>Whether Megaspeed and its affiliates are added to the Entity List.</li><li>Voluntary self-disclosures or penalties under BIS&#x27;s primary-user reading of the headquarters control.</li><li>Any finding on Megaspeed&#x27;s ownership (Alibaba, Apex).</li><li>Supermicro and Dell commentary on Southeast Asian demand and on the monthly reporting required for license-free shipments to US-headquartered buyers in the five countries.</li><li>Malaysia&#x27;s GPU-import declaration law for data centers.</li></ul>
+</section>
+<section class="sec" id="cross-references"><h2>Cross-references</h2>
+
+<ul><li><a class="xref" href="nvda-export-rule.html">nvda-china-export-rule-revenue-at-risk-2026-11</a>: revenue, EPS, multiple and price effects of the rules; §6 has the pending bills and §7 the other public companies exposed along the chain</li><li><span class="wl">china-ai-compute-access-export-controls-2026</span>: Megaspeed counts, gray-zone clouds, diversion estimates and the policy menu</li><li><span class="wl">market-newsletter-digest-2026-11-09</span>: Culper&#x27;s Megaspeed report, Cloud Partner status, Bridge eviction</li><li><span class="wl">market-newsletter-digest-2026-11-13</span>: Alibaba financing, DOJ probes, Treasury&#x27;s blacklist push</li><li><span class="wl">market-newsletter-digest-2026-11-15</span>: Supermicro&#x27;s denial, auditor resignations</li></ul>
+</section>
+<p class="dim small">Analysis, not investment advice. Rendered from the wiki page; the Markdown is the source of record.</p>
+</div>
+</body>
+</html>
