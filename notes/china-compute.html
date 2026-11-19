@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>China Compute Access</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,500;8..60,650&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Same design tokens as spv-history-and-gpu-project-finance.html. */
+:root {
+  --bg: #f3f5f7; --surface: #ffffff; --ink: #15202b; --muted: #5a6875; --rule: #d5dce3;
+  --accent: #1e5b86; --accent-soft: #e2ecf4;
+  --risk: #b3312a; --risk-soft: #f6e3e1; --warn: #a86a12; --warn-soft: #f7ecd9;
+  --ok: #2c7655; --ok-soft: #e0efe7; --neutral-bar: #9aa8b5;
+  --display: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11171d; --surface: #182129; --ink: #e3e9ef; --muted: #98a6b3; --rule: #2c3944;
+    --accent: #7db4dc; --accent-soft: #1d2d3a; --risk: #ec7a70; --risk-soft: #3a2222; --warn: #e0a64e; --warn-soft: #3a2e1c;
+    --ok: #6cc29a; --ok-soft: #1c3329; --neutral-bar: #5f6f7d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11171d; --surface: #182129; --ink: #e3e9ef; --muted: #98a6b3; --rule: #2c3944;
+  --accent: #7db4dc; --accent-soft: #1d2d3a; --risk: #ec7a70; --risk-soft: #3a2222; --warn: #e0a64e; --warn-soft: #3a2e1c;
+  --ok: #6cc29a; --ok-soft: #1c3329; --neutral-bar: #5f6f7d; color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.6; }
+.page { max-width: 980px; margin: 0 auto; padding-block: 40px 72px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 56px; }
+.prose { max-width: 68ch; }
+h1, h2, h3 { font-family: var(--display); font-weight: 650; text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: clamp(2rem, 4.5vw, 2.9rem); letter-spacing: -0.01em; }
+h2 { font-size: 1.6rem; }
+h3 { font-size: 1.15rem; font-weight: 600; }
+p { margin: 0; }
+section { display: grid; gap: 18px; min-width: 0; }
+.eyebrow { font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 1.15rem; }
+header { display: grid; gap: 16px; }
+.verdict { border-left: 4px solid var(--accent); background: var(--surface); padding: 18px 22px; display: grid; gap: 10px; max-width: 74ch; }
+.verdict strong { color: var(--accent); }
+.quote { border-left: 3px solid var(--rule); padding-left: 14px; color: var(--muted); font-style: italic; max-width: 74ch; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; }
+.cell { background: var(--surface); border: 1px solid var(--rule); padding: 16px 18px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.cell .tag { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; }
+.tag.risk { color: var(--risk); } .tag.warn { color: var(--warn); } .tag.ok { color: var(--ok); } .tag.accent { color: var(--accent); }
+.scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; background: var(--surface); }
+th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--rule); }
+th { font-family: var(--mono); font-weight: 500; font-size: 0.72rem; letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); background: var(--bg); }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.wide { min-width: 680px; }
+.pill { display: inline-block; font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 3px; white-space: nowrap; }
+.pill.no { background: var(--risk-soft); color: var(--risk); }
+.pill.mixed { background: var(--warn-soft); color: var(--warn); }
+.pill.yes { background: var(--ok-soft); color: var(--ok); }
+figure { margin: 0; background: var(--surface); border: 1px solid var(--rule); padding: 20px 18px 16px; display: grid; gap: 12px; min-width: 0; }
+figcaption { font-size: 0.85rem; color: var(--muted); max-width: 80ch; }
+.fig-title { font-family: var(--display); font-weight: 650; font-size: 1.1rem; }
+svg { display: block; width: 100%; height: auto; }
+svg text { font-family: var(--body); fill: var(--ink); font-size: 13px; }
+svg .mono { font-family: var(--mono); }
+svg .small { font-size: 11.5px; }
+svg .muted { fill: var(--muted); }
+svg .risk { fill: var(--risk); } svg .ok { fill: var(--ok); } svg .warn { fill: var(--warn); } svg .accent { fill: var(--accent); }
+svg .bold { font-weight: 600; }
+svg .box { fill: var(--surface); stroke: var(--rule); stroke-width: 1.5; }
+svg .box-spv { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 2.5; }
+svg .box-dash { fill: var(--surface); stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 5 4; }
+svg .money { stroke: var(--ok); stroke-width: 2; fill: none; }
+svg .right { stroke: var(--accent); stroke-width: 1.8; fill: none; stroke-dasharray: 6 4; }
+svg .grid { stroke: var(--rule); stroke-width: 1; }
+.chart-wide { min-width: 720px; }
+ul.plain, ol.plain { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; }
+.two { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.two > * { min-width: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 18px; font-size: 0.85rem; color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 26px; height: 0; vertical-align: middle; margin-right: 6px; }
+.legend .l-money::before { border-top: 2.5px solid var(--ok); }
+.legend .l-right::before { border-top: 2.5px dashed var(--accent); }
+code, .wl { font-family: var(--mono); font-size: 0.85em; color: var(--accent); }
+.sources { font-size: 0.85rem; color: var(--muted); display: grid; gap: 6px; }
+
+/* Side table of contents: sticky column on wide screens, collapsible box above the page on narrow ones. */
+html { scroll-behavior: smooth; }
+section, header { scroll-margin-top: 20px; }
+.layout { max-width: 1260px; margin: 0 auto; }
+.toc { padding: 20px max(16px, env(safe-area-inset-left, 0px)) 0; font-size: 0.88rem; }
+.toc details { background: var(--surface); border: 1px solid var(--rule); padding: 10px 14px; }
+.toc summary { cursor: pointer; font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.09em; text-transform: uppercase; color: var(--muted); }
+.toc ol { list-style: none; margin: 10px 0 2px; padding: 0; display: grid; gap: 2px; }
+.toc ol ol { margin: 2px 0 4px; padding-left: 14px; }
+.toc a { display: block; color: var(--muted); text-decoration: none; padding: 3px 8px; border-left: 2px solid transparent; line-height: 1.35; }
+.toc a:hover { color: var(--ink); }
+.toc a.active { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); }
+.toc .num { font-family: var(--mono); font-size: 0.78rem; margin-right: 6px; }
+@media (min-width: 1180px) {
+  .layout { display: grid; grid-template-columns: 220px minmax(0, 980px); gap: 28px; padding-left: 16px; }
+  .layout .page { margin: 0; }
+  .toc { position: sticky; top: 0; align-self: start; max-height: 100vh; overflow-y: auto; padding: 40px 0 24px; }
+  .toc details { background: none; border: 0; padding: 0; }
+  .toc summary { pointer-events: none; list-style: none; }
+  .toc summary::-webkit-details-marker { display: none; }
+}
+@media print { .toc { display: none; } }
+</style>
+<style>
+svg .bar-dom{fill:var(--accent)} svg .bar-legal{fill:var(--ok)} svg .bar-smug{fill:var(--warn)} svg .bar-remote{fill:var(--risk)}
+svg .bar-n{fill:var(--neutral-bar)} svg .bar-hi{fill:var(--risk)}
+.legend .sw{display:inline-block;width:12px;height:12px;margin-right:6px;vertical-align:-1px}
+a{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="layout">
+<nav class="toc" aria-label="Table of contents">
+  <details open>
+    <summary>Contents</summary>
+    <ol>
+      <li><a href="#top">Overview</a></li>
+      <li><a href="#s1"><span class="num">1</span>Routes to Blackwells</a></li>
+      <li><a href="#s1b"><span class="num">1b</span>Europe and Brazil</a></li>
+      <li><a href="#s1c"><span class="num">1c</span>Evidence in model weights</a></li>
+      <li><a href="#s2"><span class="num">2</span>Diverted chips</a></li>
+      <li><a href="#s3"><span class="num">3</span>Cluster size</a></li>
+      <li><a href="#s4"><span class="num">4</span>Outside research</a></li>
+      <li><a href="#s5"><span class="num">5</span>Measures in play</a></li>
+      <li><a href="#s5b"><span class="num">5b</span>CNAS and IAPS proposals</a></li>
+      <li><a href="#s6"><span class="num">6</span>Effect on China</a></li>
+      <li><a href="#s7"><span class="num">7</span>China's responses</a></li>
+      <li><a href="#s8"><span class="num">8</span>Portfolio angles</a></li>
+      <li><a href="#sources">Sources</a></li>
+    </ol>
+  </details>
+</nav>
+<div class="page">
+
+<header id="top">
+  <div class="eyebrow">Export controls · AI compute · 13 Nov 2026 · updated 18 Nov</div>
+  <h1>China's access to Nvidia compute: diversion, remote access and the coming controls</h1>
+  <p class="lede prose">How Chinese labs could be training on Blackwells, how many chips may have gone missing through Megaspeed, how big a cluster that makes, and which US measures could cut off access.</p>
+  <div class="verdict">
+    <p><strong>In short: renting Blackwells in Southeast Asia is the likeliest training route, smuggling is about as large in volume, and Megaspeed's possible diversion is a frontier-class cluster for one lab but about 1% of China's compute.</strong></p>
+    <p>The Commerce remote-access rule, issued November 16 and in force from November 19, and three bills headed for the defense bill target the two biggest channels. If they close them, IFP's numbers leave China about 40% short of its end-2027 projection.</p>
+    <p>An expert call says the move is already under way: Southeast Asia is "close to exhausted," and Chinese training is heading to Europe and to multi-gigawatt builds in Brazil. The rule as issued covers both: its remote-access control applies to data centers in any country, and Brazil is on its shipment list. Whether the 40% cut holds now turns on how many licenses BIS grants, not on geography.</p>
+    <p>New evidence: a <a href="https://unemploymentlabs.com/checkpoint-forensics">November 12 forensic report</a> finds six Chinese models released since April 2026 were started on Blackwell GPUs. It shows access, not location. Paul Triolo places only DeepSeek's Blackwells inside China (§1c). He also argues that closing the offshore channel speeds China's domestic stack (§7).</p>
+    <p>Digest figures are cited by digest date; outside research links to its source. Cluster benchmarks, chip specs and the compute arithmetic are general knowledge and my own math. Rule details come from the <a href="https://public-inspection.federalregister.gov/2026-23529.pdf">rule text</a> (FR Doc. 2026-23529); bill details from press reports.</p>
+  </div>
+  <div class="grid3">
+    <div class="cell"><span class="tag accent">Megaspeed imports</span><strong>136,000 chips</strong><span>More than half Blackwell; ~86,000 found by Nvidia's audit (Bloomberg via Grunewald)</span></div>
+    <div class="cell"><span class="tag warn">Modeled diversion</span><strong>0 to 50,000</strong><span>Epoch AI; ~111K H100e at the top, mostly B200. Unproven and denied</span></div>
+    <div class="cell"><span class="tag risk">Smuggled through 2025</span><strong>660K H100e</strong><span>Epoch median, about a third of China's compute; 2025 roughly half Blackwell</span></div>
+    <div class="cell"><span class="tag risk">Remote access</span><strong>1.0M → 2.8M H100e</strong><span>IFP, end-2026 to end-2027; ~75% in Southeast Asia</span></div>
+  </div>
+</header>
+
+<section id="s1">
+  <div class="eyebrow">1 · Routes</div>
+  <h2>How Chinese labs reach Blackwells</h2>
+  <p class="prose">Frontier training needs one large, tightly networked cluster: NVL72 racks, high-speed fabric, power, and Nvidia firmware and support. That is easier to rent than to assemble from smuggled boxes, and renting is legal. "Export controls cover where a chip ships, not who uses it remotely" (Puklowski, Nov 8 digest).</p>
+  <div class="grid3">
+    <div class="cell"><span class="tag risk">Most likely for training</span><h3>Renting in third countries</h3>
+      <ul class="plain">
+        <li>~1M H100e of remote-access compute in Southeast Asia (Oct 20 digest).</li>
+        <li>Tencent's ~$7B Oracle lease (~100,000 chips), cancelled after Washington objected (Oct 21, Nov 8).</li>
+        <li>Aolani's planned ~36,000 B200s for ByteDance; 2,304 B200s rented in Norway via Nscale (Oct 12).</li>
+      </ul></div>
+    <div class="cell"><span class="tag warn">Gray zone</span><h3>Nominal Southeast Asian clouds</h3>
+      <ul class="plain">
+        <li>Commerce stopped enforcing large-order licenses in May 2025; Singapore, Malaysia and Thailand imported ~$80B of AI chips this year (Nov 10).</li>
+        <li>Megaspeed: 17,544 GB300s in Nov 2025; a 50,000-unit gap in Nvidia's account to BIS (Nov 9).</li>
+      </ul></div>
+    <div class="cell"><span class="tag accent">Real, harder to use for training</span><h3>Physical smuggling</h3>
+      <ul class="plain">
+        <li>B300 rack: $2.8M in China vs ~$600K elsewhere (Nov 6).</li>
+        <li>~240,000 H100/H200/A100 via Century Litong, mostly pre-Blackwell (Nov 10).</li>
+        <li>Rebuilding smuggled racks into one cluster needs liquid cooling, networking and support (my reasoning).</li>
+      </ul></div>
+  </div>
+</section>
+
+<section id="s1b">
+  <div class="eyebrow">1b · Expert call (received 13 Nov)</div>
+  <h2>Training moves to Europe and Brazil</h2>
+  <p class="prose">An unnamed expert in an expert-network-style Q&amp;A (call date not shown; it treats the Oracle-Tencent deal as already halted). Claims are the expert's unless marked as checked. Transcript: <code>trading/interviews/20261113-expert-call-china-overseas-compute-europe-brazil.md</code>.</p>
+  <div class="grid3">
+    <div class="cell"><span class="tag risk">Southeast Asia</span><h3>Strictest oversight, capacity "close to exhausted"</h3><p>Matches Nvidia's 51% rule, chip tracking, Malaysia's permits and the Commerce rule's targets. US oversight of Europe is "second only to the US mainland."</p></div>
+    <div class="cell"><span class="tag accent">Europe</span><h3>Kimi and Tencent</h3><p>Kimi seeks 8,000 B300s from a Chinese internet company's European cloud ("very likely"). Tencent eyes ~10,000-card sites in the UK and France, with partners buying B300s for its use. All for training; inference stays in China.</p></div>
+    <div class="cell"><span class="tag warn">Brazil</span><h3>Multi-gigawatt builds</h3><p>ByteDance 1 GW first phase, ~1.1 GW second, over 2 GW total; Alibaba 700-800 MW first, 2-3 GW planned. Servers move in late 2026 to Q1 2027; service in H2 2027. "Most" non-US B300/GB300 shipments now go to Brazil.</p></div>
+  </div>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>Project</th><th>Size</th><th>≈ H100e</th><th>Compared</th></tr></thead>
+    <tbody>
+      <tr><td>Kimi lease, Europe</td><td class="num">8,000 B300s</td><td class="num">~20K</td><td>~18 MW; ~10x DeepSeek V3's cluster</td></tr>
+      <tr><td>Tencent, UK/France sites</td><td class="num">~10,000 cards</td><td class="num">~25K</td><td>~23 MW</td></tr>
+      <tr><td>Megaspeed, one month</td><td class="num">17,544 GB300s</td><td class="num">~44K</td><td>~30-35 MW</td></tr>
+      <tr><td>Brazil first phases (ByteDance + Alibaba)</td><td class="num">1.7-1.8 GW</td><td class="num">~1.7-2.25M</td><td>60-80% of IFP's 2.8M end-2027 remote access</td></tr>
+      <tr><td>Full Brazil plans</td><td class="num">~4-5 GW</td><td class="num">~4-6M</td><td>Comparable to China's whole end-2026 stock</td></tr>
+    </tbody>
+  </table></div>
+  <p class="prose">My arithmetic: ~2.3 kW per Blackwell GPU all-in, so 1 GW ≈ 400-500K GPUs ≈ 1.0-1.25M H100e. These are upper bounds: "GW" may be phased facility capacity, and the halls may not be filled with Nvidia chips. IFP puts only ~0.7M H100e of end-2027 remote access outside Southeast Asia; the Brazil first phases alone would be 2.5-3x that.</p>
+  <div class="two">
+    <div class="cell"><span class="tag ok">Checks</span><p>ByteDance's Pecém, Ceará campus is reported at ~1 GW and ~$37.7B, developed by Casa dos Ventos and Omnia, operating from 2027, with talks on a similar second site (<a href="https://w.media/bytedance-begins-construction-of-us-38-44-billion-data-center-in-brazil/">W.Media</a>). Alibaba Cloud opened a two-site Brazil region Aug 27 (<a href="https://www.mobiletime.com.br/noticias/27/08/2026/alibaba-cloud-anuncia-lancamento-de-dois-data-centers-em-sao-paulo/">Mobile Time</a>), no MW given. Kimi, Tencent-Europe and the Brazil shipment share are unconfirmed.</p></div>
+    <div class="cell"><span class="tag risk">Caveats</span><p>Buying "directly from Nvidia" in a Chinese firm's name needs a license under the headquarters rule BIS restated May 31 (<a href="https://www.gtlaw.com/en/insights/2026/6/enforcement-pause-has-limits-bis-clarifies-ongoing-license-requirement-for-advanced-computing-items-to-china-linked-entities">Greenberg Traurig</a>); partner-owned chips rented remotely were taken not to, which is the route Tencent and Pecém fit. The November rule's preamble narrows that: if a Chinese firm was the primary (&gt;50% of compute) user, BIS says the headquarters control already applied. "Chinese companies generally do not resort to smuggling" conflicts with Epoch and IFP, unless the expert means the majors themselves (Epoch: ~82% via intermediaries).</p></div>
+  </div>
+  <h3 style="margin-top:24px">What happens to the Brazil builds under the November 16 rule</h3>
+  <p class="prose">The rule doesn't stop construction; it decides what can go inside. Nearly every US AI chip for these halls ships after November 19 (server move-in late 2026 to Q1 2027, volume racking from Q2 2027; only shipments in transit keep the old terms for 30 days). Two licenses stand in the way, and they attach to different things, so a Brazilian owner of the chips gets past only the first (<a href="https://public-inspection.federalregister.gov/2026-23529.pdf">FR Doc. 2026-23529</a>).</p>
+  <div class="two">
+    <div class="cell"><span class="tag risk">Shipping into Brazil · § 742.6</span><p>Brazil is one of the five listed countries. With ByteDance or Alibaba as consignee, review falls under the D:5 headquarters policy, a presumption of denial (the <a href="nvda-export-rule.html">Nvidia page</a> puts refusal at ~90-95%). The US-headquartered exemption helps only if a US cloud owns the chips.</p></div>
+    <div class="cell"><span class="tag risk">Remote access · § 744.24</span><p>Whoever owns the chips, including Casa dos Ventos and Omnia at Pecém, needs a license once Chinese-parented tenants can reach more than 12M aggregate TPP (~200 B300s). The first phases are ~700-900K GPUs, thousands of times the threshold, summed across Chinese customers and linked sites. A US cloud hosting ByteDance there needs it too. Installed hardware has 90 days, to about Feb 17, 2027.</p></div>
+  </div>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>Way the halls still get used</th><th>What limits it</th></tr></thead>
+    <tbody>
+      <tr><td>Licenses granted (case by case; the administration traded H200 access in January and around the Busan truce)</td><td>Partial approval with conditions is possible; large Blackwell training blocks for ByteDance look unlikely while the NDAA bills move</td></tr>
+      <tr><td>ByteDance's recommender carve-out: TikTok feed ranking, exempt with a filing naming customer and TPP</td><td>Nothing generative, so no model training; the risk is verifying use (McGuire's "Mack truck" warning)</td></tr>
+      <tr><td>Huawei chips</td><td>HBM caps 2026 output at ~250-400K Ascend 910C-class packages, labs in China get them first, and they draw more power per unit of compute. BIS guidance of May 13, 2025 says using Ascend 910B/C/D anywhere "risks violating U.S. export controls" (<a href="https://www.arnoldporter.com/en/perspectives/advisories/2025/05/commerce-new-guidance-curb-adversaries-access-to-advanced-ai-tech">Arnold &amp; Porter</a>)</td></tr>
+      <tr><td>Work that isn't frontier AI: CPUs, storage, TikTok serving, general Alibaba Cloud, chips below 3A090</td><td>Untouched by the rule, but not training capacity</td></tr>
+      <tr><td>Leasing halls to Oracle, AWS, Microsoft or Google, which ship in license-free with monthly reports</td><td>Fine for non-Chinese customers; renting on to Chinese firms hits § 744.24 again</td></tr>
+      <tr><td>Training moves to US data centers, outside the rule</td><td>Leaves the Brazil halls underused rather than filled</td></tr>
+    </tbody>
+  </table></div>
+  <p class="prose"><strong>My expectation.</strong> The first phases finish roughly on schedule and fill with a mix: recommender and serving compute for ByteDance, general cloud for Alibaba, perhaps some Huawei racks, perhaps space leased to US clouds. Large Blackwell training clusters for Chinese labs there are unlikely without a policy reversal, and the second phases are the parts most likely to slow or shrink. That cuts the ~1.7-2.25M H100e upper bound above to a small fraction for frontier training. Tests: the license count by about Feb 17, 2027 and what gets racked from Q2 2027. The gigawatt figures rest on one unnamed expert; Pecém's ~1 GW matches press reports, Alibaba's 700-800 MW doesn't yet.</p>
+</section>
+
+<section id="s1c">
+  <div class="eyebrow">1c · Forensics (12-17 Nov)</div>
+  <h2>Blackwell fingerprints in Chinese model weights</h2>
+  <p class="prose">Will DePue (<a href="https://unemploymentlabs.com/checkpoint-forensics">Unemployment Labs, Nov 12</a>; <a href="https://github.com/macrogrants/checkpoint-forensics">code</a>) reads the GPU that created a model's starting weights from its published weights. PyTorch's CUDA initializer spreads values across 2,048 threads per SM, so the same seed fills different positions on chips with different SM counts: 132 for H100/H800/H200, 148 for B200/B300, 152 for GB200/GB300. Untrained embedding rows keep those values and match at r &gt; 0.9999 only under the right count.</p>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>Lab</th><th>Model (release)</th><th>Started on</th><th>Where the chips likely sat (Triolo's assessment)</th></tr></thead>
+    <tbody>
+      <tr><td>DeepSeek</td><td>V3 (Dec 2024)</td><td>Hopper (H800, disclosed)</td><td>China</td></tr>
+      <tr><td></td><td>V4-Flash, V4-Pro (Apr 2026)</td><td>B200/B300; GB200/GB300</td><td>Likely China: a US official's Inner Mongolia claim; Century Litong, a reported Blackwell importer, invested in DeepSeek</td></tr>
+      <tr><td>Moonshot</td><td>Kimi K2, K2.5 (Jul 2025, Jan 2026)</td><td>Hopper (H800, disclosed)</td><td>China</td></tr>
+      <tr><td></td><td>Kimi K3, K3.1-Pro (Jul, Nov 2026)</td><td>GB200/GB300</td><td>Thailand: 8,192 Blackwells supplied by Alibaba (his sources)</td></tr>
+      <tr><td>MiniMax</td><td>M3 (Jun 2026)</td><td>B200/B300</td><td>Unknown; offshore lease more likely</td></tr>
+      <tr><td>Ant Group</td><td>Ling-3.1-flash (Oct 2026)</td><td>GB200/GB300 (r ~0.98)</td><td>Possibly Thailand, by inference from the Alibaba link</td></tr>
+    </tbody>
+  </table></div>
+  <div class="grid3">
+    <div class="cell"><span class="tag ok">Checks</span><p>The method agrees with all 24 models whose developers named the hardware, including Nvidia's Nemotron-3 Ultra (GB200). Stock PyTorch on a rented B300 and GB200 reproduced the matching rows; changing the seed by one matched nothing. A second researcher rebuilt the method (<a href="https://github.com/atripathy86/gpu-forensics-hf">gpu-forensics-hf</a>, Nov 16) and got the same layouts for four models. A commenter's figure of 65 matching models is unsourced.</p></div>
+    <div class="cell"><span class="tag risk">Limits</span><p>The fingerprint shows the chip that created the starting weights, which supports, without proving, that it also did the training. It can't tell H800 from H100 or H200. A partitioned AMD MI300X also reads as 152 SMs, ruled out for V4-Flash. Nothing in the weights says where the chips were, who owned them, or whether a law was broken.</p></div>
+    <div class="cell"><span class="tag warn">What it implies</span><p>The runs are small: DePue estimates ~12,000 Blackwells across five final runs (~30K H100e), a tenth of the Megaspeed fleet. Tencent's Hy4 and Alibaba's Qwen3.8 read as Hopper although both firms rent Blackwells. Meituan's LongCat-2.0 shows no Nvidia fingerprint, which fits its claim of ASIC training. My reading: once known, the fingerprint is easy to avoid, so it works best on models already released.</p></div>
+  </div>
+  <p class="prose">The legal question can turn on one line of a cap table. Renting Blackwell time in Thailand was legal for Moonshot. If an Alibaba subsidiary owns the 8,192 GPUs, shipping them needed a US license under the 2023 ultimate-parent rule; if Alibaba leases them from a non-Chinese operator, the chain is likely lawful. Triolo's legal reading predates the rule. BIS's preamble treats primary-user rentals as already covered, and the November 16 rule now licenses rentals above 12M TPP. A <a href="https://www.chinatalk.media/p/bis-finally-takes-a-stand">ChinaTalk commenter</a> notes the rule measures access and the weights measure hardware, so a case needs both records joined.</p>
+</section>
+
+<section id="s2">
+  <div class="eyebrow">2 · Counts</div>
+  <h2>How many chips may have been diverted</h2>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>Estimate</th><th>Source</th><th>What it measures</th><th>Chips</th></tr></thead>
+    <tbody>
+      <tr><td class="num">17,544 GB300s (~$787M)</td><td>Bloomberg (Nov 9 digest)</td><td>Megaspeed imports, November 2025</td><td>Blackwell</td></tr>
+      <tr><td class="num">136K imported / 86K found / 50K gap</td><td>Bloomberg via Grunewald</td><td>Imports 2023-Nov 2025 (≥$4.6B) vs Nvidia's audit</td><td>&gt;½ Blackwell</td></tr>
+      <tr><td class="num">0-50K diverted (~111K H100e)</td><td>Epoch AI</td><td>Modeled diversion into China</td><td>~80% B200</td></tr>
+      <tr><td class="num">$4.8B</td><td>NYT, McGuire (Nov 10)</td><td>Speedmatrix purchases, Jun 2024-Feb 2026</td><td>Mixed</td></tr>
+      <tr><td class="num">$7.5B+ / ~240K chips</td><td>The Information (Nov 10)</td><td>Alice Huang network since 2023</td><td>Mostly Hopper, Ampere</td></tr>
+      <tr><td class="num">~20% of FY2026 revenue</td><td>Culper (short seller)</td><td>Revenue linked to the network, not proven diversion</td><td>Mixed</td></tr>
+    </tbody>
+  </table></div>
+  <ul class="plain prose">
+    <li>The gap is ~37% of imports. Nvidia later said it found "substantially" all chips, without a count. Megaspeed denies wrongdoing; Malaysia's trade minister sees no evidence; a US official found unopened Nvidia boxes at a Speedmatrix site in 2025 (NYT via CNBC).</li>
+    <li>Implied prices: ~$45K per GB300 with system; $4.6B / 136K ≈ $34K average, a Blackwell-Hopper mix, so roughly 70,000+ Blackwells imported.</li>
+    <li>Grunewald puts legal H200 arrivals in China at ~40,000 since the December 2025 licenses; the 50,000 gap is ~1.3x that.</li>
+  </ul>
+</section>
+
+<section id="s3">
+  <div class="eyebrow">3 · Scale</div>
+  <h2>How large a cluster that makes</h2>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>Scenario</th><th>GPUs</th><th>≈ H100e</th><th>NVL72 racks</th><th>Power</th></tr></thead>
+    <tbody>
+      <tr><td>One month of Megaspeed GB300s</td><td class="num">17,544</td><td class="num">~44,000</td><td class="num">~244</td><td class="num">~30-35 MW</td></tr>
+      <tr><td>50,000 gap, if all Blackwell</td><td class="num">50,000</td><td class="num">~111-125K</td><td class="num">~690</td><td class="num">~90-100 MW</td></tr>
+      <tr><td>$4.8B all as GB300 (upper bound)</td><td class="num">~107,000</td><td class="num">~270,000</td><td class="num">~1,490</td><td class="num">~200 MW</td></tr>
+    </tbody>
+  </table></div>
+  <figure>
+    <div class="fig-title">Cluster sizes in H100-equivalents (log scale)</div>
+    <div class="scroll"><svg class="chart-wide" viewBox="0 0 720 418" role="img" aria-label="Cluster sizes in H100-equivalents, log scale"><line class="grid" x1="290.0" y1="6" x2="290.0" y2="388"/><text class="mono small muted" x="290.0" y="404" text-anchor="middle">1K</text><line class="grid" x1="380.0" y1="6" x2="380.0" y2="388"/><text class="mono small muted" x="380.0" y="404" text-anchor="middle">10K</text><line class="grid" x1="470.0" y1="6" x2="470.0" y2="388"/><text class="mono small muted" x="470.0" y="404" text-anchor="middle">100K</text><line class="grid" x1="560.0" y1="6" x2="560.0" y2="388"/><text class="mono small muted" x="560.0" y="404" text-anchor="middle">1M</text><line class="grid" x1="650.0" y1="6" x2="650.0" y2="388"/><text class="mono small muted" x="650.0" y="404" text-anchor="middle">10M</text><text x="280" y="31" text-anchor="end" class="small">DeepSeek V3 (2,048 H800s)</text><rect class="bar-n" x="290" y="14" width="28.0" height="24"><title>2,048 H100e</title></rect><text class="mono small" x="324.0" y="31">~2K</text><text x="280" y="65" text-anchor="end" class="small">Llama 3 405B (16,384 H100s)</text><rect class="bar-n" x="290" y="48" width="109.3" height="24"><title>16,384 H100e</title></rect><text class="mono small" x="405.3" y="65">~16K</text><text x="280" y="99" text-anchor="end" class="small">Kimi lease in Europe (8,000 B300s, expert)</text><rect class="bar-smug" x="290" y="82" width="117.1" height="24"><title>20,000 H100e</title></rect><text class="mono small" x="413.1" y="99">~20K</text><text x="280" y="133" text-anchor="end" class="small">Megaspeed, one month (17,544 GB300s)</text><rect class="bar-hi" x="290" y="116" width="147.9" height="24"><title>44,000 H100e</title></rect><text class="mono small" x="443.9" y="133">~44K</text><text x="280" y="167" text-anchor="end" class="small">Huawei Horinger, China (Epoch)</text><rect class="bar-dom" x="290" y="150" width="171.8" height="24"><title>81,000 H100e</title></rect><text class="mono small" x="467.8" y="167">~81K</text><text x="280" y="201" text-anchor="end" class="small">xAI Colossus phase 1 (100K H100s)</text><rect class="bar-n" x="290" y="184" width="180.0" height="24"><title>100,000 H100e</title></rect><text class="mono small" x="476.0" y="201">~100K</text><text x="280" y="235" text-anchor="end" class="small">Megaspeed 50K gap, if Blackwell</text><rect class="bar-hi" x="290" y="218" width="184.1" height="24"><title>111,000 H100e</title></rect><text class="mono small" x="480.1" y="235">~111K</text><text x="280" y="269" text-anchor="end" class="small">Stargate Abilene full build</text><rect class="bar-n" x="290" y="252" width="270.0" height="24"><title>1,000,000 H100e</title></rect><text class="mono small" x="566.0" y="269">~1.0M</text><text x="280" y="303" text-anchor="end" class="small">SpaceX Colossus 2 (Epoch)</text><rect class="bar-n" x="290" y="286" width="273.7" height="24"><title>1,100,000 H100e</title></rect><text class="mono small" x="569.7" y="303">~1.1M</text><text x="280" y="337" text-anchor="end" class="small">Brazil first phases, ByteDance + Alibaba (expert)</text><rect class="bar-smug" x="290" y="320" width="297.1" height="24"><title>2,000,000 H100e</title></rect><text class="mono small" x="593.1" y="337">~2.0M</text><text x="280" y="371" text-anchor="end" class="small">China total, end-2026 (IFP)</text><rect class="bar-n" x="290" y="354" width="329.6" height="24"><title>4,600,000 H100e</title></rect><text class="mono small" x="625.6" y="371">~4.6M</text></svg></div>
+    <figcaption>Red bars are Megaspeed scenarios; the blue bar is Huawei's Horinger site, China's largest domestic cluster (Epoch: ~105,000 Ascend 910C, 90% CI 36K-141K H100e); amber bars are projects from the expert call (Brazil at ~2M H100e is the midpoint of an upper-bound range). Benchmarks are general knowledge and approximate; conversion assumes a B300 ≈ 2.5x an H100 (Epoch's B200 basis gives ~2.2x). China total is IFP's end-2026 estimate.</figcaption>
+  </figure>
+  <p class="prose"><strong>Training compute (my arithmetic):</strong> 44,000 H100e × 0.99 PFLOPS × 40% utilization × 90 days ≈ 1.4 × 10²⁶ FLOP, about 40x DeepSeek V3 and several times GPT-4's estimated ~2 × 10²⁵. That is ~2.7x Llama 3's cluster and ~20x DeepSeek V3's, but about 4% of Stargate Abilene at full build and about 1% of China's total compute.</p>
+  <p class="prose"><strong>Against China's own largest site.</strong> Epoch (<a href="https://epoch.ai/publications/huawei-horinger-china-compute-gap">Cottier, Nov 6</a>) puts Huawei's Horinger campus at ~81K H100e across four buildings (~286 MW), about 7% of Colossus 2's ~1.1M; only VNET Bayin Ulanqab and Huawei Wuhu are likely comparable. One month of Megaspeed GB300s is a bit over half of Horinger, so a diverted Blackwell cluster would rank among China's largest AI sites. Horinger should reach ~141K H100e around February 2028 with ~76,000 Ascend 950DTs; Colossus 2 should pass 1.8M by then.</p>
+  <p class="prose">A training cluster has to sit in one building on one fabric. 17,544 GB300s arriving in one month looks like one deployment; the 50,000 gap may be spread across sites and periods.</p>
+</section>
+
+<section id="s4">
+  <div class="eyebrow">4 · Research</div>
+  <h2>What outside research says</h2>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>Source</th><th>Date</th><th>Key estimate</th></tr></thead>
+    <tbody>
+      <tr><td><a href="https://epoch.ai/publications/chip-smuggling">Epoch AI, "Diversion and resale"</a></td><td>Apr 29, 2026</td><td>660K H100e smuggled through 2025 (290K-1.6M); 2025 ~half Blackwell; Megaspeed 0-50K. Excludes remote access.</td></tr>
+      <tr><td><a href="https://www.cnas.org/publications/reports/countering-ai-chip-smuggling-has-become-a-national-security-priority">CNAS (Grunewald, Fist)</a></td><td>Jun 2025</td><td>2024 smuggling median ~140K chips.</td></tr>
+      <tr><td><a href="https://ifp.org/how-to-increase-americas-ai-lead-over-china/">IFP (Fist, Adamson, Pilz)</a></td><td>Oct 19, 2026</td><td>China ~4.6M H100e end-2026, ~8.8M end-2027; remote access "the most effective channel to limit."</td></tr>
+      <tr><td><a href="https://www.the-substrate.net/p/whats-going-on-with-jensen-huang">Grunewald, The Substrate</a></td><td>Nov 11, 2026</td><td>Megaspeed 136K / 86K / 50K; ~40K legal H200s.</td></tr>
+      <tr><td><a href="https://www.chinatalk.media/p/how-many-chips-does-china-have">ChinaTalk (Zakaria)</a></td><td>2026</td><td>China total median ~2.8M H100e.</td></tr>
+      <tr><td><a href="https://pstaidecrypted.substack.com/p/two-answers-to-the-same-controls">Triolo, AIStackDecrypted</a></td><td>Nov 17, 2026</td><td>Megaspeed's installed fleet ~200-300K H100e, ~8-12% of Epoch's ~2.6M in China; Century Litong network ~190-240K H100e. Combined 240-540K, but most is legal rental likely already inside IFP's remote-access figure. That is a different measure from the 0-50K diverted above.</td></tr>
+      <tr><td><a href="https://unemploymentlabs.com/checkpoint-forensics">Unemployment Labs (DePue)</a></td><td>Nov 12, 2026</td><td>Six Chinese models since April 2026 started on Blackwell; matches all 24 known-hardware cases (§1c).</td></tr>
+      <tr><td><a href="https://epoch.ai/publications/huaweis-roadmap-to-2031">Epoch on Huawei</a></td><td>2026</td><td>Huawei under 4% of Nvidia's 2026 compute; HBM the bottleneck.</td></tr>
+      <tr><td><a href="https://epoch.ai/publications/huawei-horinger-china-compute-gap">Epoch, Horinger (Cottier)</a></td><td>Nov 6, 2026</td><td>Horinger ~81K H100e, ~7% of Colossus 2; 910C ≈ 0.76 H100e; ~40% of US compute per watt; "China appears to have no shortage of energy for data centers."</td></tr>
+      <tr><td><a href="https://www.the-substrate.net/p/what-us-intelligence-should-track">Kempkey (IAPS), The Substrate</a></td><td>Oct 27, 2026</td><td>≥670K H100e rented or planned via overseas clouds (May 2026, "highly uncertain"); Epoch's Huawei 2026 output ~880K H100e (600K-1.2M); seven things intelligence should track.</td></tr>
+      <tr><td><a href="https://www.cnas.org/publications/cnas-insights/cnas-insights-the-nvidia-scandal-is-a-wake-up-call-for-congress">CNAS (Kilcrease, Chilukuri)</a></td><td>Nov 12, 2026</td><td>Controls "have largely worked"; evasion via smuggling, Malaysia and Singapore clouds, DUVi tools and adversarial distillation. US frontier lead may be as little as 6.5 months (IFP).</td></tr>
+    </tbody>
+  </table></div>
+  <div class="two">
+    <div class="cell"><span class="tag ok">Agrees</span><p>Megaspeed counts, the Blackwell mix, the ~2.2-2.5x H100 conversion, and remote access as the fastest-growing, most policy-relevant channel.</p></div>
+    <div class="cell"><span class="tag risk">Corrected</span><p>Smuggling is not a small, older-chip channel: by 2025 about half Blackwell and on par with remote access. China's base is ~2.8-4.6M H100e, not ~2M, so a diverted cluster is ~1-3% of its compute, not 2-6%.</p></div>
+  </div>
+  <div class="two">
+    <div class="cell"><span class="tag ok">Fits</span><p>The Substrate's 670K H100e of overseas rentals (May) sits just under IFP's end-2026 remote-access range of 680K-1.46M, consistent with growth through the year.</p></div>
+    <div class="cell"><span class="tag risk">Conflict</span><p>Epoch's ~880K H100e of Huawei output vs. the HBM cap of ~250-400K 910C-class packages (~190-300K H100e at Epoch's 0.76 each). Horinger alone holds ~105,000 910Cs. Either Huawei holds stockpiled HBM or packaging yields won't deliver Epoch's figure. Different measure: CNAS's 6.5-month model lag vs. IFP's ~16x compute lead; distillation lets both hold.</p></div>
+  </div>
+</section>
+
+<section id="s5">
+  <div class="eyebrow">5 · Policy</div>
+  <h2>Measures that could cut access</h2>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>Measure</th><th>What it does</th><th>Channel</th><th>Status, Nov 17</th></tr></thead>
+    <tbody>
+      <tr><td>Commerce remote-access rule</td><td>License to supply any data center, anywhere, giving China-, Macau- or D:5-parented firms more than 12M aggregate TPP (~330 B200s or ~200 B300s); licenses to ship advanced chips to Brazil, Indonesia, Malaysia, Singapore and Thailand, except to US-headquartered buyers that report monthly</td><td>Remote access</td><td><span class="pill yes">Issued Nov 16</span> Effective Nov 19; 90 days for existing data centers; case-by-case review (<a href="https://www.bis.gov/press-release/bis-issues-rule-addressing-remote-access-american-super-intelligence-technology">BIS</a>, <a href="https://public-inspection.federalregister.gov/2026-23529.pdf">rule text</a>). Authority contested before issue (<a href="https://www.forbes.com/sites/jonmarkman/2026/11/12/chinese-ai-firms-rush-to-rent-nvidia-chips-abroad-before-a-new-us-rule/">Forbes</a>)</td></tr>
+      <tr><td>Remote Access Security Act</td><td>Clear statutory authority over cloud access</td><td>Remote access</td><td><span class="pill mixed">House 369-22</span> In Senate Banking (<a href="https://www.congress.gov/bill/119th-congress/house-bill/2683/all-actions">congress.gov</a>)</td></tr>
+      <tr><td>Chip Security Act</td><td>Location verification; diversion reporting</td><td>Smuggling</td><td><span class="pill yes">Senate NDAA</span> HFAC 42-0 (<a href="https://www.koreatimes.co.kr/world/20261111/us-lawmakers-push-for-tougher-china-export-controls-in-defense-bill-amid-nvidia-scrutiny">Korea Times</a>)</td></tr>
+      <tr><td>AI OVERWATCH Act</td><td>Export licenses with congressional review</td><td>Direct sales</td><td><span class="pill yes">Senate NDAA</span> Committee 42-2</td></tr>
+      <tr><td>MATCH Act</td><td>Allies align chip-tool controls incl. DUV</td><td>Domestic production</td><td><span class="pill yes">Senate NDAA</span> Committee 36-8</td></tr>
+      <tr><td>GAIN AI Act</td><td>US buyers first</td><td>Direct sales</td><td><span class="pill no">Stalled</span></td></tr>
+      <tr><td>Revoking H200 licenses</td><td>Undo January case-by-case approvals (the 25% is collected as a tariff on import for US testing, per <a href="https://www.cov.com/en/news-and-insights/insights/2026/01/us-commerce-department-revises-license-review-policy-for-exports-of-certain-advanced-computing-commodities-to-china-and-macau">Covington</a>)</td><td>Direct sales</td><td><span class="pill mixed">Expected by Lu</span> Unconfirmed</td></tr>
+      <tr><td>Headquarters rule</td><td>License for advanced chips to China- or Macau-headquartered entities anywhere; restated May 31, 2026</td><td>Chinese firms buying abroad in their own name</td><td><span class="pill yes">In force</span> Was read as not reaching partner-owned chips rented remotely; the November rule's preamble says it "has never been limited" that way and covers shipments where a Chinese firm was the primary (&gt;50%) remote user</td></tr>
+    </tbody>
+  </table></div>
+  <p class="prose">Speaker Johnson sees a "developing consensus"; Semafor reports the NDAA bills could pass by year-end. Nvidia is tightening too: a 51% non-Chinese capacity rule for cloud partners, chip tracking for Southeast Asian partners, and a halved list of approved Asian buyers. Malaysia now requires permits for US-origin accelerators.</p>
+  <div class="verdict">
+    <p><strong>Read against the rule text.</strong> US-headquartered buyers are exempt only from the five-country shipment licenses. The remote-access control has no US-company exemption, and no country list: it covers data centers "wherever located," Europe and Brazil included.</p>
+    <p>Look-through runs to the tenant's "ultimate parent." Data centers must check for indirect Chinese ownership. A "for an entity" clause covers non-Chinese middlemen training models for Chinese firms. Compute is summed across "linked data centers," and de minimis rules can't be used. The linked-center test turns on the network, not the country, so a Johor site linked to a US site would count the US capacity too.</p>
+    <p>What's left: data centers on US soil, which receive no export, reexport or in-country transfer for the license to attach to (McGuire: "Northern Virginia is going to become the center of China AI until we fix this," <a href="https://www.chinatalk.media/p/bis-finally-takes-a-stand">ChinaTalk</a>); small rentals spread across unrelated providers; deals where no supplier has "knowledge"; and whatever licenses BIS grants under case-by-case review. BIS expects only ~100 more applications a year.</p>
+    <p>Nvidia's exposure is sized on <a href="nvda-export-rule.html">the Nvidia revenue-at-risk page</a>; the sales chain and Megaspeed on <a href="nvda-sales-chain.html">the sales-chain page</a>.</p>
+  </div>
+</section>
+
+<section id="s5b">
+  <div class="eyebrow">5b · Proposals (added 15 Nov)</div>
+  <h2>What CNAS asks Congress for, and what intelligence should track</h2>
+  <p class="prose">Kilcrease and Chilukuri (<a href="https://www.cnas.org/publications/cnas-insights/cnas-insights-the-nvidia-scandal-is-a-wake-up-call-for-congress">CNAS, Nov 12</a>) see gaps rather than a failed policy: an under-resourced BIS, a long-known cloud loophole, the AI Diffusion Rule suspended without clear enforcement, and the H20 reversal to H200 sales with a 25% cut to the US.</p>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>CNAS recommendation</th><th>Maps to</th><th>Status, Nov 15</th></tr></thead>
+    <tbody>
+      <tr><td>Pass the Remote Access Security Act</td><td>Remote access</td><td><span class="pill mixed">House passed</span> Senate pending</td></tr>
+      <tr><td>Pass AI OVERWATCH: congressional review and block of chip sales to adversaries, like arms sales</td><td>Direct sales</td><td><span class="pill yes">Senate NDAA</span></td></tr>
+      <tr><td>Fast-track on-chip security against diversion</td><td>Smuggling; overlaps Chip Security Act</td><td><span class="pill yes">Senate NDAA</span></td></tr>
+      <tr><td>Raise BIS budget; shield it from politics; independent IG for China controls</td><td>Enforcement</td><td><span class="pill no">New</span></td></tr>
+      <tr><td>Legal basis for labs to share adversarial-distillation data (CISA 2015 model)</td><td>Distillation</td><td><span class="pill no">New</span></td></tr>
+      <tr><td>Allied controls on DUVi tools (Netherlands, ASML) with compensation; pass the STRIDE Act</td><td>Domestic production; overlaps MATCH</td><td><span class="pill no">New here</span></td></tr>
+      <tr><td>Expedite Megaspeed's Entity List listing; visas or sanctions; leak probes; counterintelligence briefings</td><td>Gray-zone clouds</td><td><span class="pill mixed">Pending</span> Bessent: Treasury wanted it months ago</td></tr>
+    </tbody>
+  </table></div>
+  <p class="prose">Only the Megaspeed listing and the remote-access law act quickly on the channels in section 6, and none of the seven names Europe or Brazil. Gavin Baker argues the opposite (Nov 14 digest): weaker-chip sales widened the US lead from 2.8x to 8.8x, and a full ban would push Chinese labs onto Huawei.</p>
+  <p class="prose">Kempkey (<a href="https://www.the-substrate.net/p/what-us-intelligence-should-track">IAPS via The Substrate, Oct 27</a>): "There is still much we don't know about China's compute capabilities." Her seven unranked areas map onto this page's open questions.</p>
+  <div class="scroll"><table class="wide">
+    <thead><tr><th>Indicator</th><th>Open question here</th></tr></thead>
+    <tbody>
+      <tr><td>Compute by developer and cloud; whether Beijing steers chips</td><td>Who could use a Megaspeed-sized cluster</td></tr>
+      <tr><td>Usable domestic chips, fab and packaging yields</td><td>Huawei output conflict; HBM cap</td></tr>
+      <tr><td>Usable overseas compute, perhaps in accelerator-hours</td><td>Brazil and Europe builds; IFP's remote-access line</td></tr>
+      <tr><td>Smuggling of chips, logic dies and HBM</td><td>Epoch's 660K; the Megaspeed gap</td></tr>
+      <tr><td>Bottlenecks and stockpile life</td><td>HBM, packaging, tools</td></tr>
+      <tr><td>DUV and EUV indigenization; foreign parts still used</td><td>MATCH, STRIDE, DUVi controls</td></tr>
+      <tr><td>Illicit foreign fabrication (TSMC/Sophgo)</td><td>Huawei's exhausted TSMC die bank</td></tr>
+    </tbody>
+  </table></div>
+  <p class="prose">She wants sustained NSC attention, an ODNI check on collection, and shared estimates for Commerce, Treasury, State, War, Congress and allies, citing IAPS's ODNI compute-tracking proposal and CNAS's joint Commerce-intelligence team. Every estimate on this page is a model or a press count; the smuggling range alone (290K-1.6M) is wider than the Brazil first phase.</p>
+</section>
+
+<section id="s6">
+  <div class="eyebrow">6 · Impact</div>
+  <h2>Effect on China's compute</h2>
+  <figure>
+    <div class="fig-title">China's AI compute by channel, millions of H100e (IFP)</div>
+    <div class="legend"><span><i class="sw" style="background:var(--accent)"></i>Domestic incl. stock</span><span><i class="sw" style="background:var(--ok)"></i>Legal imports</span><span><i class="sw" style="background:var(--warn)"></i>Smuggled</span><span><i class="sw" style="background:var(--risk)"></i>Remote access</span></div>
+    <div class="scroll"><svg class="chart-wide" viewBox="0 0 720 206" role="img" aria-label="China AI compute by channel, IFP estimates"><line class="grid" x1="160.0" y1="10" x2="160.0" y2="176"/><text class="mono small muted" x="160.0" y="192" text-anchor="middle">0M</text><line class="grid" x1="215.6" y1="10" x2="215.6" y2="176"/><text class="mono small muted" x="215.6" y="192" text-anchor="middle">1M</text><line class="grid" x1="271.1" y1="10" x2="271.1" y2="176"/><text class="mono small muted" x="271.1" y="192" text-anchor="middle">2M</text><line class="grid" x1="326.7" y1="10" x2="326.7" y2="176"/><text class="mono small muted" x="326.7" y="192" text-anchor="middle">3M</text><line class="grid" x1="382.2" y1="10" x2="382.2" y2="176"/><text class="mono small muted" x="382.2" y="192" text-anchor="middle">4M</text><line class="grid" x1="437.8" y1="10" x2="437.8" y2="176"/><text class="mono small muted" x="437.8" y="192" text-anchor="middle">5M</text><line class="grid" x1="493.3" y1="10" x2="493.3" y2="176"/><text class="mono small muted" x="493.3" y="192" text-anchor="middle">6M</text><line class="grid" x1="548.9" y1="10" x2="548.9" y2="176"/><text class="mono small muted" x="548.9" y="192" text-anchor="middle">7M</text><line class="grid" x1="604.4" y1="10" x2="604.4" y2="176"/><text class="mono small muted" x="604.4" y="192" text-anchor="middle">8M</text><line class="grid" x1="660.0" y1="10" x2="660.0" y2="176"/><text class="mono small muted" x="660.0" y="192" text-anchor="middle">9M</text><text x="150" y="41" text-anchor="end">End-2026</text><rect class="bar-dom" x="160.0" y="20" width="94.4" height="32"><title>1.7M H100e</title></rect><text class="mono small" x="207.2" y="41" text-anchor="middle" style="fill:#15202b">1.7</text><rect class="bar-legal" x="254.4" y="20" width="47.2" height="32"><title>0.85M H100e</title></rect><text class="mono small" x="278.1" y="41" text-anchor="middle" style="fill:#15202b">0.85</text><rect class="bar-smug" x="301.7" y="20" width="55.6" height="32"><title>1.0M H100e</title></rect><text class="mono small" x="329.4" y="41" text-anchor="middle" style="fill:#15202b">1</text><rect class="bar-remote" x="357.2" y="20" width="55.6" height="32"><title>1.0M H100e</title></rect><text class="mono small" x="385.0" y="41" text-anchor="middle" style="fill:#15202b">1</text><text class="mono bold" x="420.8" y="41">~4.6M</text><text x="150" y="93" text-anchor="end">End-2027</text><rect class="bar-dom" x="160.0" y="72" width="166.7" height="32"><title>3.0M H100e</title></rect><text class="mono small" x="243.3" y="93" text-anchor="middle" style="fill:#15202b">3</text><rect class="bar-legal" x="326.7" y="72" width="75.0" height="32"><title>1.35M H100e</title></rect><text class="mono small" x="364.2" y="93" text-anchor="middle" style="fill:#15202b">1.35</text><rect class="bar-smug" x="401.7" y="72" width="88.9" height="32"><title>1.6M H100e</title></rect><text class="mono small" x="446.1" y="93" text-anchor="middle" style="fill:#15202b">1.6</text><rect class="bar-remote" x="490.6" y="72" width="155.6" height="32"><title>2.8M H100e</title></rect><text class="mono small" x="568.3" y="93" text-anchor="middle" style="fill:#15202b">2.8</text><text class="mono bold" x="654.1" y="93">~8.8M</text><text x="150" y="145" text-anchor="end">2027, controls bite</text><rect class="bar-dom" x="160.0" y="124" width="166.7" height="32"><title>3.0M H100e</title></rect><text class="mono small" x="243.3" y="145" text-anchor="middle" style="fill:#15202b">3</text><rect class="bar-legal" x="326.7" y="124" width="75.0" height="32"><title>1.35M H100e</title></rect><text class="mono small" x="364.2" y="145" text-anchor="middle" style="fill:#15202b">1.35</text><rect class="bar-smug" x="401.7" y="124" width="44.4" height="32"><title>0.8M H100e</title></rect><text class="mono small" x="423.9" y="145" text-anchor="middle" style="fill:#15202b">0.8</text><text class="mono bold" x="454.1" y="145">~5.2M</text></svg></div>
+    <figcaption>"Controls bite" assumes no new remote-access capacity and smuggling halved (IFP's own 50% assumption). Domestic output would be lower still if MATCH cuts off DUV tools; legal imports lower if H200 licenses are revoked.</figcaption>
+  </figure>
+  <p class="prose">ChinaTalk puts remote access at about two-fifths of China's AI compute (<a href="https://www.chinatalk.media/p/bis-finally-takes-a-stand">ChinaTalk</a>). IFP's share is lower, ~22% at end-2026, but the absolute figures are close: two-fifths of ChinaTalk's ~2.8M H100e is ~1.1M, against IFP's 1.0M. IFP counts more domestic and smuggled compute.</p>
+  <p class="prose">Remote access matters most because it is the fastest-growing channel and holds the newest chips, including the large Blackwell blocks. Without it, Chinese labs are left with smaller, mixed clusters of smuggled and domestic chips, against a US lead IFP already puts at ~16x across top labs.</p>
+  <div class="verdict"><p><strong>The geographic gap closed; the licensing gap opened.</strong> Before the text came out, the rule was reported as covering seven countries, with nothing on Europe or Brazil, where the expert says Chinese training is going. As issued, the remote-access control covers data centers anywhere, and Brazil is on the shipment list, so the "controls bite" bar holds on geography.</p><p>It can still be too low if BIS grants many case-by-case licenses, if training moves to US soil, or if enforcement against middlemen is weak. The tests are the license count in the 90 days to about February 17, 2027, and whether the Brazil halls fill with licensed Nvidia chips or with Huawei's.</p></div>
+</section>
+
+<section id="s7">
+  <div class="eyebrow">7 · Responses</div>
+  <h2>How China could mitigate</h2>
+  <ol class="plain prose">
+    <li><strong>Lock in capacity now.</strong> Reuters reports Chinese clouds reserving overseas Nvidia capacity (<a href="https://qz.com/chinese-ai-firms-overseas-nvidia-capacity-crackdown-111226">Quartz</a>). The rule doesn't grandfather it: existing data centers get 90 days to obtain a license, and only shipments in transit get 30 days under the old terms.</li>
+    <li><strong>Move to uncovered countries.</strong> Under way, per the expert: Kimi and Tencent in Europe, ByteDance and Alibaba in Brazil, and ByteDance already renting in Norway. The rule closes this on paper, since its remote-access control covers every country. The open route is US soil.</li>
+    <li><strong>Partner-owned capacity.</strong> Tencent's partners buying B300s, Pecém's Brazilian developers, "Chinese capital, Singapore headquarters." BIS's preamble also says supplying a data center whose primary (&gt;50%) user was a Chinese firm was already covered before the rule. The rule targets this through the ultimate-parent test, indirect-ownership checks and the "for an entity" clause. What survives is deals where no supplier has "knowledge."</li>
+    <li><strong>Keep smuggling at higher prices.</strong> Location verification mainly hits new chips.</li>
+    <li><strong>Domestic chips, capped by memory.</strong> CXMT's ~2-2.2M HBM stacks support ~250-400K Ascend 910C-class packages; SMIC could make 800K+ dies (<a href="https://www.tomshardware.com/tech-industry/artificial-intelligence/chinas-chip-champions-ramp-up-production-of-ai-accelerators-at-domestic-fabs-but-hbm-and-fab-production-capacity-are-towering-bottlenecks">Tom's Hardware</a>). MATCH targets the DUV tools; CNAS names DUVi as a main evasion route. Kempkey: "Fabrication may not be the main constraint"; packaging and HBM may bind first. Triolo adds that CXMT starts limited HBM3E output with ~20% usable (SK Hynix ~70%), that Huawei pulled the Ascend 960DT forward to Q1 2027, and that Huali 7nm adds ~0.1-0.6M H100e in 2027. His end-2027 cases for Chinese-designed chips are ~3M (IFP baseline), 3.1-3.6M (with Huali), 4-5M (accelerated) and 6-8M (upside).</li>
+    <li><strong>Scale out with weaker chips.</strong> CloudMatrix 384, cheap power, the $300B National Data Group buildout. Epoch: B200/B300 are ~2.5x more energy-efficient than the 910C, so a watt buys ~40% of US compute; power isn't the limit, and the Ascend 950 is less efficient still, so growth comes from adding power. On these numbers brute force has reached ~7% of one US site.</li>
+    <li><strong>Efficiency and distillation.</strong> DeepSeek V3 on 2,048 H800s; can't fully replace raw compute at the frontier. CNAS counts adversarial distillation of US models as an evasion channel, one reason the lag may be ~6.5 months. DeepSeek released Ascend ports of its training stack on Sept 30. Triolo calls this the year's biggest change because it lowers CUDA lock-in; independent replication is still the test.</li>
+    <li><strong>Take the legal H200s.</strong> ~600,000 sit in Hong Kong because Beijing blocks them (Baker, Nov 9).</li>
+  </ol>
+</section>
+
+<section id="s8">
+  <div class="eyebrow">8 · Portfolio</div>
+  <h2>Portfolio angles</h2>
+  <div class="grid3">
+    <div class="cell"><span class="tag risk">Exposed</span><p>Southeast Asian neoclouds and data-center operators (Johor), US clouds renting to Chinese firms, Nvidia's Southeast Asia billings.</p></div>
+    <div class="cell"><span class="tag ok">Beneficiaries</span><p>China's domestic chain (Huawei suppliers, SMIC, Cambricon, CXMT) and Chinese power builders. ASML and Tokyo Electron lose DUV sales if MATCH passes.</p></div>
+    <div class="cell"><span class="tag warn">Now covered</span><p>European colocation hosts (UK, France, Nordics) and Brazilian builders and power developers (Casa dos Ventos, Pátria's Omnia) become license applicants. Without licenses, the Brazil halls fill with Huawei chips or sit partly empty.</p></div>
+    <div class="cell"><span class="tag accent">Watch</span><p>How many remote-access licenses BIS grants by about Feb 17, 2027 (~100 more applications a year expected), any move to reach US-soil data centers (RASA), Brazil handovers from Q2 2027, NDAA conference, Nvidia's Nov 17 Southeast Asia billings, BIS or DOJ chip counts, whether Beijing releases the H200s, Megaspeed's Entity List listing, whether officials cite the model-weight evidence, CXMT HBM3E yields and Huali 7nm volume, BIS funding or STRIDE, Huawei's usable output vs. Epoch's ~880K, Horinger's fourth building (Dec 2026) and 950 expansion (~Feb 2028).</p></div>
+  </div>
+</section>
+
+<section class="sources" id="sources">
+  <div class="eyebrow">Sources and related wiki pages</div>
+  <p>Markdown source of this page: <code>investing-macro/china-ai-compute-access-export-controls-2026.md</code>.</p>
+  <p>Digests: <span class="wl">market-newsletter-digest-2026-10-12</span>, <span class="wl">market-newsletter-digest-2026-10-20</span>, <span class="wl">market-newsletter-digest-2026-10-21</span>, <span class="wl">market-newsletter-digest-2026-10-24</span>, <span class="wl">market-newsletter-digest-2026-11-06</span>, <span class="wl">market-newsletter-digest-2026-11-08</span>, <span class="wl">market-newsletter-digest-2026-11-09</span>, <span class="wl">market-newsletter-digest-2026-11-10</span>, <span class="wl">market-newsletter-digest-2026-11-13</span>, <span class="wl">market-newsletter-digest-2026-11-14</span>.</p>
+  <p>Podcasts: <span class="wl">mlid-jensen-huang-resigns-nvidia-trump-amd-ai-bubble-20261112</span>, <span class="wl">bsi-jensens-affair-will-burst-nvidias-ai-bubble-ed-zitron-20261111</span>, <span class="wl">ttr-ai-bubble-circular-financing-is-over-ed-zitron-20261112</span>. Related: <a href="spv-gpu-finance.html">spv-history-and-gpu-project-finance</a>. Expert call: <span class="wl">20261113-expert-call-china-overseas-compute-europe-brazil</span>.</p>
+  <p>Outside research and reporting: <a href="https://epoch.ai/publications/chip-smuggling">Epoch AI</a>, <a href="https://ifp.org/how-to-increase-americas-ai-lead-over-china/">IFP</a>, <a href="https://www.cnas.org/publications/reports/countering-ai-chip-smuggling-has-become-a-national-security-priority">CNAS</a>, <a href="https://www.the-substrate.net/p/whats-going-on-with-jensen-huang">The Substrate</a>, <a href="https://www.cnbc.com/2026/11/12/nvidia-megaspeed-alice-huang-jensen-.html">CNBC</a>, <a href="https://en.sedaily.com/world/2026/11/13/us-chip-bills-gain-momentum-as-house-speaker-backs-export">Seoul Economic Daily</a>, <a href="https://www.cnas.org/publications/cnas-insights/cnas-insights-the-nvidia-scandal-is-a-wake-up-call-for-congress">CNAS (Nov 12)</a>, <a href="https://www.the-substrate.net/p/what-us-intelligence-should-track">Kempkey, The Substrate (Oct 27)</a>, <a href="https://epoch.ai/publications/huawei-horinger-china-compute-gap">Epoch on Horinger (Nov 6)</a>.</p>
+  <p>Rule: BIS interim final rule, "Addressing Remote Access to Advanced Semiconductors," FR Doc. 2026-23529 (<a href="https://public-inspection.federalregister.gov/2026-23529.pdf">rule text</a>; <a href="https://www.bis.gov/press-release/bis-issues-rule-addressing-remote-access-american-super-intelligence-technology">BIS release</a>). Related pages: <a href="nvda-export-rule.html">Nvidia revenue at risk</a>, <a href="nvda-sales-chain.html">Nvidia sales chain and Megaspeed</a>.</p>
+  <p>Cluster benchmarks, chip specs and compute arithmetic are general knowledge and approximate. Bill details are from press reports as of November 17, 2026.</p>
+</section>
+
+</div>
+</div>
+
+<script>
+(function () {
+  var narrow = window.matchMedia("(max-width: 1179px)");
+  var box = document.querySelector(".toc details");
+  if (narrow.matches) box.removeAttribute("open");
+  if (!("IntersectionObserver" in window)) return;
+  var links = Array.prototype.slice.call(document.querySelectorAll(".toc a"));
+  var targets = links.map(function (a) { return document.querySelector(a.getAttribute("href")); });
+  var seen = new Map();
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { seen.set(e.target, e.isIntersecting); });
+    var current = null;
+    for (var i = 0; i < targets.length; i++) { if (targets[i] && seen.get(targets[i])) { current = targets[i]; break; } }
+    if (!current) return;
+    links.forEach(function (a, i) { a.classList.toggle("active", targets[i] === current && !(a.parentNode.querySelector("ol"))); });
+  }, { rootMargin: "0px 0px -60% 0px" });
+  targets.forEach(function (t) { if (t) obs.observe(t); });
+  links.forEach(function (a) { a.addEventListener("click", function () { if (narrow.matches) box.removeAttribute("open"); }); });
+})();
+</script>
+</body>
+</html>
