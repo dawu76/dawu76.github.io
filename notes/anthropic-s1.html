@@ -58,6 +58,33 @@ sup a { text-decoration: none; font-family: var(--mono); font-size: 0.75em; }
 .sources ol, .sources ul { margin: 0; padding-left: 1.4em; display: grid; gap: 4px; word-break: break-all; }
 a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
+<style id="side-toc-css">
+/* side TOC (add_side_toc.py) */
+.stoc-layout { display: grid; grid-template-columns: 12.5rem minmax(0, 1fr); gap: 1.8rem; align-items: start; }
+.stoc-layout, .stoc-main, nav.stoc { min-width: 0; }
+.page > .stoc-layout .stoc-main { display: grid; gap: 48px; }
+nav.stoc { position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow-y: auto; font-size: .86rem; line-height: 1.3; }
+nav.stoc .stoc-h { font-family: var(--mono, ui-monospace, Menlo, monospace); font-size: .7rem; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-dim, var(--muted, #5a6875)); margin: 0 0 .6rem .7rem; }
+nav.stoc a { display: block; text-decoration: none; color: var(--text-dim, var(--muted, #5a6875));
+  padding: .3rem 0 .3rem .7rem; border-left: 2px solid var(--border, var(--rule, #d5dce3)); }
+nav.stoc a:hover { color: var(--accent, #1d4f91); }
+nav.stoc a.active { color: var(--accent, #1d4f91); border-left-color: var(--accent, #1d4f91); font-weight: 600; }
+@media (min-width: 901px) {
+  html { scroll-padding-top: 1rem; }
+  .wrap { max-width: 82rem; }
+  .page { max-width: 1260px; }
+}
+@media (max-width: 900px) {
+  html { scroll-padding-top: 3.2rem; }
+  .stoc-layout { display: block; }
+  nav.stoc { top: 0; z-index: 5; max-height: none; overflow-x: auto; overflow-y: visible; white-space: nowrap;
+    background: var(--bg, #fff); border-bottom: 1px solid var(--border, var(--rule, #d5dce3)); padding: .5rem 0; margin-bottom: 1.2rem; }
+  nav.stoc .stoc-h { display: none; }
+  nav.stoc a { display: inline-block; border-left: 0; padding: .1rem 0; margin-right: 1rem; }
+  nav.stoc a.active { font-weight: 500; }
+}
+</style>
 </head>
 <body>
 <div class="page">
@@ -71,7 +98,21 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   </div>
   <p class="prose">How each payment method hits the statements: <span class="wl">compute-payment-methods-statement-impact</span>. Related: <span class="wl">ai-inference-costs-accounting</span>, <span class="wl">msft-openai-over-earning-2026-10</span> (Microsoft's $3.2B Anthropic gain is the investor side of these marks), <a href="akam-vs-docn.html">akam-vs-docn-20261015</a> (Akamai's $11.6B Anthropic contract), <span class="wl">ubp-financing-ai-build-out-2026-09</span>.</p>
 </header>
-<nav class="toc" aria-label="Contents"><strong>Contents</strong><ol><li><a href="#key-s-1-figures-m">Key S-1 figures ($M)</a></li><li><a href="#the-thread-s-claims-checked">The thread&#x27;s claims, checked</a></li><li><a href="#two-below-the-line-items-to-understand">Two below-the-line items to understand</a></li><li><a href="#broadcom-finance-leases-and-the-42b-rent-note-facility">Broadcom: finance leases and the $42B rent-note facility</a></li><li><a href="#other-vendor-linked-equity-facilities-undrawn">Other vendor-linked equity facilities (undrawn)</a></li><li><a href="#compute-commitments-named-in-the-s-1">Compute commitments (named in the S-1)</a></li><li><a href="#published-commentary-as-of-2026-10-27">Published commentary (as of 2026-10-27)</a></li><li><a href="#watch-list-signs-in-future-filings-that-costs-are-hidden-or-understated">Watch list: signs in future filings that costs are hidden or understated</a></li><li><a href="#not-verified">Not verified</a></li></ol></nav>
+<div class="stoc-layout">
+<nav class="stoc" aria-label="Sections">
+  <div class="stoc-h">Contents</div>
+  <a href="#key-s-1-figures-m">Key S-1 figures ($M)</a>
+  <a href="#the-thread-s-claims-checked">The thread&#x27;s claims, checked</a>
+  <a href="#two-below-the-line-items-to-understand">Two below-the-line items to understand</a>
+  <a href="#broadcom-finance-leases-and-the-42b-rent-note-facility">Broadcom: finance leases and the $42B rent-note facility</a>
+  <a href="#other-vendor-linked-equity-facilities-undrawn">Other vendor-linked equity facilities (undrawn)</a>
+  <a href="#compute-commitments-named-in-the-s-1">Compute commitments (named in the S-1)</a>
+  <a href="#published-commentary-as-of-2026-10-27">Published commentary (as of 2026-10-27)</a>
+  <a href="#watch-list-signs-in-future-filings-that-costs-are-hidden-or-understated">Watch list: signs in future filings that costs are hidden or understated</a>
+  <a href="#not-verified">Not verified</a>
+  <a href="#sources">Sources</a>
+</nav>
+<main class="stoc-main">
 <section id="key-s-1-figures-m"><h2>Key S-1 figures ($M)</h2>
 <div class="scroll"><table class="keytable"><thead><tr><th>Item</th><th>2023</th><th>2024</th><th>2025</th><th>1H25</th><th>1H26</th></tr></thead><tbody><tr><td>Revenue</td><td class="num">41</td><td class="num">386</td><td class="num">4,585</td><td class="num">1,163</td><td class="num">16,286</td></tr><tr><td>Compute and infrastructure</td><td class="num">433</td><td class="num">2,522</td><td class="num">7,326</td><td class="num">2,334</td><td class="num">8,945</td></tr><tr><td>Operating loss</td><td class="num">(551)</td><td class="num">(2,980)</td><td class="num">(8,060)</td><td class="num">(2,135)</td><td class="num">(693)</td></tr><tr><td>Change in FV of notes, derivatives, SAFEs</td><td class="num">(1,045)</td><td class="num">(5,434)</td><td class="num">(34,308)</td><td class="num">(10,942)</td><td class="num">(72,388)</td></tr><tr><td>Other income (expense), net</td><td class="num">(2)</td><td class="num">—</td><td class="num">(8)</td><td class="num">—</td><td class="num">(8,757)</td></tr><tr><td>Net loss</td><td class="num">(1,531)</td><td class="num">(8,309)</td><td class="num">(41,965)</td><td class="num">(12,969)</td><td class="num">(80,748)</td></tr><tr><td>Stock-based comp (in opex)</td><td class="num">29</td><td class="num">192</td><td class="num">1,158</td><td class="num">279</td><td class="num">2,185</td></tr><tr><td>CFO</td><td class="num">(1,627)</td><td class="num">(5,692)</td><td class="num">(2,637)</td><td class="num">(1,513)</td><td class="num">3,929</td></tr><tr><td>Capex</td><td class="num">(2)</td><td class="num">(15)</td><td class="num">(131)</td><td class="num">(18)</td><td class="num">(482)</td></tr><tr><td>Notes issued for cash (CFF)</td><td class="num">1,750</td><td class="num">6,050</td><td class="num">3,450</td><td class="num">1,300</td><td class="num">—</td></tr><tr><td>Preferred stock issued (CFF)</td><td class="num">445</td><td class="num">1,188</td><td class="num">16,548</td><td class="num">3,549</td><td class="num">110,432</td></tr></tbody></table></div>
 <p class="prose">Balance sheet at 6/30/26:</p>
@@ -115,6 +156,24 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 <ul><li><a href="https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm">https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm</a></li><li><a href="https://www.thestar.com.my/tech/tech-news/2026/10/01/exclusive-broadcom-to-lend-anthropic-up-to-42-billion-to-lease-its-chips-filing-says">https://www.thestar.com.my/tech/tech-news/2026/10/01/exclusive-broadcom-to-lend-anthropic-up-to-42-billion-to-lease-its-chips-filing-says</a></li><li><a href="https://kepler.ai/research/financial/s1-anthropic/">https://kepler.ai/research/financial/s1-anthropic/</a></li></ul>
 <p>Rendered from <code>anthropic-s1-convertible-notes-below-the-line-2026-10.md</code>. Confidence: medium.</p>
 </section>
+</main>
 </div>
+</div>
+<script id="side-toc-js">
+// highlight the side-TOC entry for the section in view (add_side_toc.py)
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.stoc a'));
+  if (!('IntersectionObserver' in window) || !links.length) return;
+  var byId = {}, visible = {};
+  links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+    var current = null;
+    links.forEach(function (a) { var id = a.getAttribute('href').slice(1); if (!current && visible[id]) current = id; });
+    if (current) links.forEach(function (a) { a.classList.toggle('active', a === byId[current]); });
+  }, { rootMargin: '0px 0px -60% 0px' });
+  Object.keys(byId).forEach(function (id) { var el = document.getElementById(id); if (el) obs.observe(el); });
+})();
+</script>
 </body>
 </html>

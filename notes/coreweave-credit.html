@@ -105,6 +105,33 @@ ol.steps, ul.plain { margin: 0; padding-left: 1.2em; display: grid; gap: 8px; }
 .sources a { color: var(--accent); }
 a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </style>
+<style id="side-toc-css">
+/* side TOC (add_side_toc.py) */
+.stoc-layout { display: grid; grid-template-columns: 12.5rem minmax(0, 1fr); gap: 1.8rem; align-items: start; }
+.stoc-layout, .stoc-main, nav.stoc { min-width: 0; }
+.page > .stoc-layout .stoc-main { display: grid; gap: 48px; }
+nav.stoc { position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow-y: auto; font-size: .86rem; line-height: 1.3; }
+nav.stoc .stoc-h { font-family: var(--mono, ui-monospace, Menlo, monospace); font-size: .7rem; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-dim, var(--muted, #5a6875)); margin: 0 0 .6rem .7rem; }
+nav.stoc a { display: block; text-decoration: none; color: var(--text-dim, var(--muted, #5a6875));
+  padding: .3rem 0 .3rem .7rem; border-left: 2px solid var(--border, var(--rule, #d5dce3)); }
+nav.stoc a:hover { color: var(--accent, #1d4f91); }
+nav.stoc a.active { color: var(--accent, #1d4f91); border-left-color: var(--accent, #1d4f91); font-weight: 600; }
+@media (min-width: 901px) {
+  html { scroll-padding-top: 1rem; }
+  .wrap { max-width: 82rem; }
+  .page { max-width: 1260px; }
+}
+@media (max-width: 900px) {
+  html { scroll-padding-top: 3.2rem; }
+  .stoc-layout { display: block; }
+  nav.stoc { top: 0; z-index: 5; max-height: none; overflow-x: auto; overflow-y: visible; white-space: nowrap;
+    background: var(--bg, #fff); border-bottom: 1px solid var(--border, var(--rule, #d5dce3)); padding: .5rem 0; margin-bottom: 1.2rem; }
+  nav.stoc .stoc-h { display: none; }
+  nav.stoc a { display: inline-block; border-left: 0; padding: .1rem 0; margin-right: 1rem; }
+  nav.stoc a.active { font-weight: 500; }
+}
+</style>
 </head>
 <body>
 <div class="page">
@@ -120,7 +147,20 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </header>
 
 <!-- ============ KEY NUMBERS ============ -->
-<section>
+<div class="stoc-layout">
+<nav class="stoc" aria-label="Sections">
+  <div class="stoc-h">Contents</div>
+  <a href="#what-a-lender-sees">What a lender sees</a>
+  <a href="#coreweave-prices-closer-to-ccc-than-to-i">CoreWeave prices closer to CCC than to its own rating</a>
+  <a href="#why-a-new-unsecured-bond-has-to-pay-10-o">Why a new unsecured bond has to pay 10% or more</a>
+  <a href="#cash-goes-out-years-before-it-comes-back">Cash goes out years before it comes back</a>
+  <a href="#the-loop-that-worries-bondholders">The loop that worries bondholders</a>
+  <a href="#what-has-to-line-up-for-a-default">What has to line up for a default</a>
+  <a href="#what-could-set-it-off">What could set it off</a>
+  <a href="#why-the-bulls-hold-the-bonds">Why the bulls hold the bonds</a>
+</nav>
+<main class="stoc-main">
+<section id="what-a-lender-sees">
   <div class="eyebrow">The numbers</div>
   <h2>What a lender sees</h2>
   <div class="scroll">
@@ -156,7 +196,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </section>
 
 <!-- ============ SPREAD LADDER ============ -->
-<section>
+<section id="coreweave-prices-closer-to-ccc-than-to-i">
   <div class="eyebrow">Where the market puts it</div>
   <h2>CoreWeave prices closer to CCC than to its own rating</h2>
   <figure>
@@ -243,7 +283,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </section>
 
 <!-- ============ WHY 10%+ ============ -->
-<section>
+<section id="why-a-new-unsecured-bond-has-to-pay-10-o">
   <div class="eyebrow">New issue math</div>
   <h2>Why a new unsecured bond has to pay 10% or more</h2>
   <p class="prose">A bond's yield is roughly the Treasury yield plus the credit spread. The Treasury part is about 5% today; the 10-year traded between 4.96% and 5.19% in mid-October. That leaves room for less than 500bp of spread below 10%. CoreWeave's unsecured spread is twice that. Before the selloff, in April, its 9.75% coupon notes still priced near a 9.4% yield. Secured debt that sits behind a single customer contract costs much less. The peer rows at the top of the chart show it trading at 6–8.5%.</p>
@@ -311,7 +351,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </section>
 
 <!-- ============ TIMING ============ -->
-<section>
+<section id="cash-goes-out-years-before-it-comes-back">
   <div class="eyebrow">Timing</div>
   <h2>Cash goes out years before it comes back</h2>
   <p class="prose">The timeline below follows one illustrative new cluster. The pressure comes from where the bars sit. Capex and interest start on day one. Revenue starts only when the site is energized. The cheapest debt is secured on long contracts, while new contracts run 3 to 6 months. And the GPUs may lose their earning power before they are written off.</p>
@@ -372,7 +412,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </section>
 
 <!-- ============ FUNDING LOOP ============ -->
-<section>
+<section id="the-loop-that-worries-bondholders">
   <div class="eyebrow">Funding</div>
   <h2>The loop that worries bondholders</h2>
   <p class="prose">A company that pays interest from new financing depends on the cost of that financing. CoreWeave pays interest and funds capex with fresh capital, so its share price and its bond yields feed each other. Deutsche Bank's Jim Reid called this "a self-fulfilling prophecy". Each step below has already happened at least once in October.</p>
@@ -428,7 +468,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </section>
 
 <!-- ============ DEFAULT CONDITIONS ============ -->
-<section>
+<section id="what-has-to-line-up-for-a-default">
   <div class="eyebrow">Default mechanics</div>
   <h2>What has to line up for a default</h2>
   <p class="prose">Wide spreads alone don't cause a default. A company defaults when it has an obligation due and cannot find the cash. For CoreWeave, that means all four conditions below have to hold at the same time. If any one fails, the company can most likely refinance, restructure quietly, or sell assets.</p>
@@ -491,7 +531,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </section>
 
 <!-- ============ TRIGGERS ============ -->
-<section>
+<section id="what-could-set-it-off">
   <div class="eyebrow">Triggers</div>
   <h2>What could set it off</h2>
   <p class="prose">The status column is my judgment from the October data, not a model output. <span class="pill live">Live</span> means the trigger is already visible in prices or news. <span class="pill building">Building</span> means early signs are present. <span class="pill remote">Remote</span> means it is possible but nothing points to it yet.</p>
@@ -559,7 +599,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 </section>
 
 <!-- ============ COUNTERWEIGHTS ============ -->
-<section>
+<section id="why-the-bulls-hold-the-bonds">
   <div class="eyebrow">The other side</div>
   <h2>Why the bulls hold the bonds</h2>
   <div class="two">
@@ -583,7 +623,25 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   <p><a href="https://www.cnbc.com/2026/10/20/coreweave-debt-janus-henderson-lloyd.html">CNBC, 20 Oct: Janus Henderson on holding CoreWeave debt</a></p>
   <p>Repo digests, Oct 2026: 10-14 (Ree, Lewitt, Luria, Parekh), 10-21 (record CDS 1,194.5bp), 10-23 (Rubinstein, Nvidia guarantees, CCC/BB spreads), 10-27 (Haircut's borrowing history, Forbes CDS ladder), 10-28 (depreciation debate).</p>
 </section>
+</main>
+</div>
 
 </div>
+<script id="side-toc-js">
+// highlight the side-TOC entry for the section in view (add_side_toc.py)
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.stoc a'));
+  if (!('IntersectionObserver' in window) || !links.length) return;
+  var byId = {}, visible = {};
+  links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+    var current = null;
+    links.forEach(function (a) { var id = a.getAttribute('href').slice(1); if (!current && visible[id]) current = id; });
+    if (current) links.forEach(function (a) { a.classList.toggle('active', a === byId[current]); });
+  }, { rootMargin: '0px 0px -60% 0px' });
+  Object.keys(byId).forEach(function (id) { var el = document.getElementById(id); if (el) obs.observe(el); });
+})();
+</script>
 </body>
 </html>
