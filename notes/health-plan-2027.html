@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2027 Health Plan Decision</title>
+<meta name="description" content="AmeriBenefit association plans vs Kaiser Bronze 60 HMO for a family of 4 in 2027, with and without the Covered CA subsidy.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231d4f91'/%3E%3Ctext x='16' y='22' font-size='16' text-anchor='middle' fill='%23fff' font-family='sans-serif'%3E%2B%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Serif:wght@600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f4f6f9; --surface: #ffffff; --surface-2: #eef2f7; --border: #d6dde8;
+  --text: #16202d; --text-dim: #536175;
+  --accent: #1d4f91; --accent-soft: #e3ecf8;
+  --grey: #b9c0ca; --grey-2: #d9dee6;
+  --neg: #b03a2e; --neg-soft: #f8e5e2;
+  --pos: #2f6b4f; --pos-soft: #e2f0e8;
+  --amber: #a8570f; --amber-soft: #f8ecdf;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e141d; --surface: #151d29; --surface-2: #1b2534; --border: #2a3648;
+    --text: #e3e9f1; --text-dim: #9aa8bb;
+    --accent: #74a8eb; --accent-soft: #1a2c45;
+    --grey: #4d5a6c; --grey-2: #2c3747;
+    --neg: #ee8a7d; --neg-soft: #3d1f1c;
+    --pos: #74c49a; --pos-soft: #183326;
+    --amber: #e3a660; --amber-soft: #3a2a19;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e141d; --surface: #151d29; --surface-2: #1b2534; --border: #2a3648;
+  --text: #e3e9f1; --text-dim: #9aa8bb;
+  --accent: #74a8eb; --accent-soft: #1a2c45;
+  --grey: #4d5a6c; --grey-2: #2c3747;
+  --neg: #ee8a7d; --neg-soft: #3d1f1c;
+  --pos: #74c49a; --pos-soft: #183326;
+  --amber: #e3a660; --amber-soft: #3a2a19;
+}
+* { box-sizing: border-box; }
+html { font-size: 17px; scroll-behavior: smooth; scroll-padding-top: 1rem; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif; line-height: 1.55; overflow-wrap: break-word; }
+.wrap { max-width: 78rem; margin: 0 auto; padding: 0 1rem 4rem; }
+h1, h2, h3 { text-wrap: balance; line-height: 1.2; }
+h1 { font-family: "IBM Plex Serif", Georgia, serif; font-size: 2rem; margin: 0 0 .5rem; }
+h2 { font-size: 1.4rem; margin: 0 0 .6rem; }
+h3 { font-size: 1.05rem; margin: 1.4rem 0 .5rem; }
+p { max-width: 72ch; margin: .5rem 0; }
+ul { padding-left: 1.3rem; } li { margin: .3rem 0; }
+.num { font-family: "IBM Plex Mono", monospace; font-variant-numeric: tabular-nums; }
+.dim { color: var(--text-dim); } .small { font-size: .85rem; }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+header.top { padding: 2rem 0 1rem; border-bottom: 1px solid var(--border); margin-bottom: 0; }
+.byline { color: var(--text-dim); font-size: .9rem; }
+/* margin TOC on wide screens */
+.layout { display: grid; grid-template-columns: 11.5rem minmax(0, 1fr); gap: 1.8rem; margin-top: 1.2rem; }
+main { min-width: 0; }
+nav.toc { position: sticky; top: 1rem; align-self: start; max-height: calc(100vh - 2rem); overflow-y: auto; padding: .2rem 0; }
+nav.toc .toc-h { font-family: "IBM Plex Mono", monospace; font-size: .7rem; font-weight: 600; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text-dim); margin: 0 0 .6rem .7rem; }
+nav.toc a { display: block; font-size: .86rem; line-height: 1.3; text-decoration: none; color: var(--text-dim);
+  padding: .3rem 0 .3rem .7rem; border-left: 2px solid var(--border); }
+nav.toc a:hover { color: var(--accent); }
+nav.toc a.active { color: var(--accent); border-left-color: var(--accent); font-weight: 600; }
+/* narrow screens: TOC becomes a sticky bar across the top */
+@media (max-width: 900px) {
+  html { scroll-padding-top: 3.2rem; }
+  .layout { display: block; margin-top: 0; }
+  nav.toc { top: 0; z-index: 5; max-height: none; overflow-x: auto; overflow-y: visible; white-space: nowrap;
+    background: var(--bg); border-bottom: 1px solid var(--border); padding: .5rem 0; margin-bottom: 1.2rem; }
+  nav.toc .toc-h { display: none; }
+  nav.toc a { display: inline-block; border-left: 0; padding: .1rem 0; margin-right: 1rem; }
+  nav.toc a.active { font-weight: 500; }
+}
+
+section { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 1.3rem 1.3rem 1.1rem; margin: 0 0 1.2rem; }
+.takeaway { border-left: 4px solid var(--accent); background: var(--accent-soft); padding: .7rem 1rem; border-radius: 0 6px 6px 0; margin: 0 0 1rem; }
+.takeaway .k { font-family: "IBM Plex Mono", monospace; font-size: .7rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); display: block; margin-bottom: .15rem; }
+.takeaway p { margin: 0; font-weight: 500; max-width: none; }
+.callout { border-left: 3px solid var(--amber); background: var(--amber-soft); padding: .6rem .9rem; border-radius: 0 6px 6px 0; margin: .8rem 0; font-size: .92rem; }
+
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); gap: .8rem; margin: 1rem 0 .4rem; }
+.tile { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: .8rem .9rem; }
+.tile .big { font-family: "IBM Plex Mono", monospace; font-size: 1.5rem; font-weight: 600; color: var(--accent); line-height: 1.1; }
+.tile .big.neg { color: var(--neg); } .tile .big.pos { color: var(--pos); }
+.tile .lbl { font-size: .85rem; color: var(--text-dim); margin-top: .3rem; }
+
+.tbl { width: 100%; overflow-x: auto; margin: .6rem 0; }
+table { border-collapse: collapse; width: 100%; font-size: .86rem; }
+th, td { text-align: left; vertical-align: top; padding: .45rem .55rem; border-bottom: 1px solid var(--border); }
+th { background: var(--surface-2); font-weight: 600; }
+td.num, th.num { text-align: right; white-space: nowrap; }
+tr.hl td { background: var(--pos-soft); }
+tr.bad td { background: var(--neg-soft); }
+td.best { color: var(--pos); font-weight: 600; }
+td.warn { color: var(--neg); font-weight: 600; }
+
+.pill { display: inline-block; font-size: .72rem; font-weight: 600; padding: .05rem .45rem; border-radius: 3px; white-space: nowrap; }
+.pill.pos { background: var(--pos-soft); color: var(--pos); }
+.pill.neg { background: var(--neg-soft); color: var(--neg); }
+.pill.mix { background: var(--amber-soft); color: var(--amber); }
+
+/* stacked bars */
+.chart { margin: 1rem 0 .4rem; }
+.chart-title { font-weight: 600; margin-bottom: .2rem; }
+.chart-sub { font-size: .82rem; color: var(--text-dim); margin-bottom: .7rem; }
+.srow { display: grid; grid-template-columns: 12rem 1fr; gap: .6rem; align-items: center; min-height: 2rem; }
+.slab { font-size: .86rem; line-height: 1.2; }
+.strack { display: flex; align-items: center; height: 1.1rem; }
+.seg { height: 100%; }
+.seg.prem { background: var(--accent); border-radius: 2px 0 0 2px; }
+.seg.prem.k { background: var(--grey); }
+.seg.oop { background: var(--amber); opacity: .7; border-radius: 0 2px 2px 0; }
+.sv { margin-left: .5rem; font-size: .78rem; color: var(--text-dim); white-space: nowrap; font-family: "IBM Plex Mono", monospace; }
+.legend { display: flex; flex-wrap: wrap; gap: 1rem; font-size: .8rem; color: var(--text-dim); margin: .3rem 0 .6rem; }
+.sw { display: inline-block; width: .8rem; height: .8rem; border-radius: 2px; vertical-align: -.1em; margin-right: .3rem; }
+
+/* decision cards */
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: .8rem; margin: .8rem 0; }
+.card { border: 1px solid var(--border); border-radius: 6px; padding: .8rem .9rem; background: var(--surface-2); }
+.card h3 { margin: 0 0 .3rem; font-size: 1rem; }
+.card .act { font-weight: 600; color: var(--accent); }
+ul.check { list-style: none; padding-left: 0; }
+ul.check li { padding-left: 1.4rem; position: relative; }
+ul.check li::before { content: "☐"; position: absolute; left: 0; color: var(--text-dim); }
+footer { font-size: .8rem; color: var(--text-dim); margin-top: 1.5rem; }
+
+@media (max-width: 640px) {
+  h1 { font-size: 1.55rem; }
+  section { padding: 1rem .9rem; }
+  .srow { grid-template-columns: 1fr; gap: .15rem; margin-bottom: .5rem; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>2027 Health Plan Decision</h1>
+  <p class="lead">AmeriBenefit association plans vs Kaiser Bronze 60 HMO, for a family of 4 (two parents aged 45–50 and two kids), with and without the Covered CA subsidy.</p>
+  <p class="byline">Updated November 20, 2026 · AmeriBenefit figures use the Family tier, 45–54 age band, Tier 2 · Kaiser figures use the 2027 Covered CA quote</p>
+</header>
+
+<div class="layout">
+<nav class="toc" aria-label="Sections">
+  <div class="toc-h">Contents</div>
+  <a href="#bottom">Bottom line</a>
+  <a href="#inputs">Inputs</a>
+  <a href="#plans">Plans</a>
+  <a href="#cost">Annual cost</a>
+  <a href="#why">Why CAT wins</a>
+  <a href="#three">CAT vs VL vs Copay</a>
+  <a href="#congress">Congress</a>
+  <a href="#decide">Decision rule</a>
+  <a href="#check">Checklist</a>
+  <a href="#sources">Sources</a>
+</nav>
+<main>
+
+<section id="bottom">
+  <h2>Bottom line</h2>
+  <div class="takeaway"><span class="k">Takeaway</span><p>Decide based on 2027 income. If it lands under the 400% FPL cliff (about $132,000 for a family of 4), stay on Kaiser. If it lands clearly over, switch to the AmeriBenefit $10K CAT plan, or to Copay $2,500 if someone needs regular specialist care.</p></div>
+  <div class="tiles">
+    <div class="tile"><div class="big pos">$8,022</div><div class="lbl">Kaiser premium/yr with the subsidy. The cheapest option in every scenario.</div></div>
+    <div class="tile"><div class="big neg">$24,251</div><div class="lbl">Kaiser premium/yr without the subsidy, up 10.6% from 2026</div></div>
+    <div class="tile"><div class="big">$10.7k–$15.1k</div><div class="lbl">What CAT saves each year if you're over the cliff (total cost)</div></div>
+    <div class="tile"><div class="big">66–93%</div><div class="lbl">How likely a subsidy law would need to be before waiting on Kaiser pays off. My estimate is 25–35%.</div></div>
+  </div>
+</section>
+
+<section id="inputs">
+  <h2>Inputs and assumptions</h2>
+  <div class="takeaway"><span class="k">Takeaway</span><p>Worst-case figures come straight from the plan documents. Healthy- and moderate-year figures are rough estimates of typical negotiated prices.</p></div>
+  <ul>
+    <li><strong>AmeriBenefit pricing:</strong> Family tier, 45–54 band (the broker outline uses it for ages 50–54), Tier 2. The tier appears to be health-rated. At Tier 1, CAT is $11,004/yr; at Tier 3, it's $14,752/yr. Copay is $13,020 at Tier 1 and $19,350 at Tier 3.</li>
+    <li><strong>Kaiser 2027:</strong> $2,020.94/mo before help, then −$1,348.46 APTC and −$4 CA credit, for <span class="num">$668.48/mo</span>. Cost sharing is unchanged: $5,800 / $11,600 deductible and $11,650 / $23,300 out-of-pocket max.</li>
+    <li><strong>Plan version:</strong> Kaiser here means the <strong>Bronze 60 HMO</strong>, not the Bronze 60 HDHP. The HMO isn't HSA-qualified.</li>
+    <li><strong>Healthy year:</strong> checkups, 6 sick or urgent-care visits, 2 lab draws, 1 X-ray, monthly generics.</li>
+    <li><strong>Moderate year:</strong> the healthy year plus a child's fracture (ER, X-ray, 2 orthopedist visits, 6 PT visits) and one adult MRI.</li>
+    <li><strong>Worst case:</strong> premium plus the in-network family out-of-pocket max.</li>
+  </ul>
+</section>
+
+<section id="plans">
+  <h2>The six plans at a glance</h2>
+  <div class="takeaway"><span class="k">Takeaway</span><p>The AmeriBenefit plans cost less because they leave out coverage the ACA requires on Kaiser. Three of them exclude brand-name drugs, and all of them have visit or day caps and a 90-day wait for elective procedures.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th>Plan</th><th>Network</th><th class="num">Premium/yr</th><th>Deductible (person / family)</th><th>OOP max (person / family)</th><th>Brand-name drugs</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Kaiser Bronze 60 HMO</strong></td><td>Kaiser HMO</td><td class="num">$8,022 / $24,251</td><td>$5,800 / $11,600</td><td>$11,650 / $23,300</td><td>40% up to $500/fill</td></tr>
+      <tr><td>AB $10K CAT</td><td>Cigna PPO</td><td class="num">$12,420</td><td>$10,000 / $20,000</td><td>$10,000 / $20,000</td><td class="warn">Not covered</td></tr>
+      <tr><td>AB VL $2,750</td><td>PHCS, in-network only</td><td class="num">$14,445</td><td>$2,750 / $5,500</td><td>$12,000 / $24,000</td><td class="warn">Not covered</td></tr>
+      <tr><td>AB Copay $2,500</td><td>Cigna PPO</td><td class="num">$16,185</td><td>$2,500 / $5,000</td><td>$10,200 / $20,400</td><td class="warn">Not covered</td></tr>
+      <tr><td>AB HSA $4,500</td><td>Cigna PPO</td><td class="num">$20,007</td><td>$4,500 / $9,000</td><td>$8,700 / $17,400</td><td>$180–$220 after deductible</td></tr>
+      <tr><td>AB MM $5,500</td><td>Cigna PPO</td><td class="num">$23,505</td><td>$5,500 / $11,000</td><td>$10,200 / $20,400</td><td>$180–$220 copay</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small dim">Kaiser premium shown with / without the subsidy.</p>
+  <div class="cards">
+    <div class="card"><h3>Kaiser advantages</h3><ul class="small"><li>Kids' dental and vision included</li><li>No annual visit or day caps</li><li>No health-based pricing at renewal</li></ul></div>
+    <div class="card"><h3>Cigna PPO advantages</h3><ul class="small"><li>National network, no referrals: Stanford, PAMF/Sutter, El Camino</li><li>Coverage while traveling</li><li>Chiropractic covered</li></ul></div>
+    <div class="card"><h3>All AmeriBenefit plans</h3><ul class="small"><li>No elective procedures for the first 90 days</li><li>Missing precertification can cost 50% of the benefit</li><li>"PAP Available" for drugs means a drug-maker charity program, not insurance</li></ul></div>
+  </div>
+</section>
+
+<section id="cost">
+  <h2>Annual cost: with and without the subsidy</h2>
+  <div class="takeaway"><span class="k">Takeaway</span><p>With the subsidy, Kaiser is cheapest in every scenario. Without it, Kaiser is nearly the most expensive option, and CAT is cheapest in every scenario.</p></div>
+
+  <div class="chart" role="img" aria-label="Moderate-year total cost by plan, split into premium and out-of-pocket">
+    <div class="chart-title">Moderate-year total cost</div>
+    <div class="chart-sub">Premium plus estimated out-of-pocket. Scale runs to $30,000.</div>
+    <div class="legend"><span><span class="sw" style="background:var(--accent)"></span>Premium</span><span><span class="sw" style="background:var(--grey)"></span>Kaiser premium</span><span><span class="sw" style="background:var(--amber);opacity:.7"></span>Out-of-pocket</span></div>
+    <div class="srow"><div class="slab">Kaiser, subsidized</div><div class="strack"><div class="seg prem k" style="width:26.7%"></div><div class="seg oop" style="width:18.7%"></div><span class="sv">~$13,600</span></div></div>
+    <div class="srow"><div class="slab">AB $10K CAT</div><div class="strack"><div class="seg prem" style="width:41.4%"></div><div class="seg oop" style="width:22.3%"></div><span class="sv">~$19,100</span></div></div>
+    <div class="srow"><div class="slab">AB VL $2,750</div><div class="strack"><div class="seg prem" style="width:48.2%"></div><div class="seg oop" style="width:18.3%"></div><span class="sv">~$19,900</span></div></div>
+    <div class="srow"><div class="slab">AB Copay $2,500</div><div class="strack"><div class="seg prem" style="width:54%"></div><div class="seg oop" style="width:14.1%"></div><span class="sv">~$20,400</span></div></div>
+    <div class="srow"><div class="slab">AB HSA $4,500</div><div class="strack"><div class="seg prem" style="width:66.7%"></div><div class="seg oop" style="width:23%"></div><span class="sv">~$26,900</span></div></div>
+    <div class="srow"><div class="slab">AB MM $5,500</div><div class="strack"><div class="seg prem" style="width:78.4%"></div><div class="seg oop" style="width:18.3%"></div><span class="sv">~$29,000</span></div></div>
+    <div class="srow"><div class="slab">Kaiser, no subsidy</div><div class="strack"><div class="seg prem k" style="width:80.8%"></div><div class="seg oop" style="width:18.7%"></div><span class="sv">~$29,900</span></div></div>
+  </div>
+
+  <div class="tbl"><table>
+    <thead><tr><th>Plan</th><th class="num">Healthy year</th><th class="num">Moderate year</th><th class="num">Worst case</th></tr></thead>
+    <tbody>
+      <tr class="hl"><td>Kaiser, subsidized ($8,022)</td><td class="num">~$9,000</td><td class="num">~$13,600</td><td class="num">$31,322</td></tr>
+      <tr class="bad"><td>Kaiser, over 400% FPL ($24,251)</td><td class="num">~$25,200</td><td class="num">~$29,900</td><td class="num">$47,551</td></tr>
+      <tr><td><strong>AB $10K CAT</strong> ($12,420)</td><td class="num best">~$13,600</td><td class="num best">~$19,100</td><td class="num best">$32,420</td></tr>
+      <tr><td>AB VL $2,750 ($14,445)</td><td class="num">~$15,100</td><td class="num">~$19,900</td><td class="num">$38,445 + costs past the caps</td></tr>
+      <tr><td>AB Copay $2,500 ($16,185)</td><td class="num">~$16,800</td><td class="num">~$20,400</td><td class="num">$36,585</td></tr>
+      <tr><td>AB HSA $4,500 ($20,007)</td><td class="num">~$21,400</td><td class="num">~$26,900</td><td class="num">$37,407</td></tr>
+      <tr><td>AB MM $5,500 ($23,505)</td><td class="num">~$24,300</td><td class="num">~$29,000</td><td class="num">$43,905</td></tr>
+    </tbody>
+  </table></div>
+  <p class="small dim">Green marks the cheapest AmeriBenefit plan in each column. The subsidy is worth about $16,230/yr and applies only to Covered CA plans.</p>
+</section>
+
+<section id="why">
+  <h2>Why CAT beats unsubsidized Kaiser even in light years</h2>
+  <div class="takeaway"><span class="k">Takeaway</span><p>CAT does cost more for care in light years, but only $260–$1,100 more. Its premium is $11,831 lower, and in a bad year its family out-of-pocket max is $3,300 lower.</p></div>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th class="num">Kaiser (no subsidy)</th><th class="num">AB $10K CAT</th><th>Difference</th></tr></thead>
+    <tbody>
+      <tr><td>Premium</td><td class="num">$24,251</td><td class="num">$12,420</td><td><span class="pill pos">CAT −$11,831</span></td></tr>
+      <tr><td>Out-of-pocket, healthy year</td><td class="num">~$940</td><td class="num">~$1,200</td><td><span class="pill neg">CAT +$260</span></td></tr>
+      <tr><td>Out-of-pocket, moderate year</td><td class="num">~$5,600</td><td class="num">~$6,700</td><td><span class="pill neg">CAT +$1,100</span></td></tr>
+      <tr><td>Out-of-pocket, worst case</td><td class="num">$23,300</td><td class="num">$20,000</td><td><span class="pill pos">CAT −$3,300</span></td></tr>
+    </tbody>
+  </table></div>
+  <ul>
+    <li><strong>Similar deductibles in practice.</strong> Kaiser Bronze 60 HMO also has a large deductible: $5,800 per person, then 40%. In light years most claims fall under the deductible on both plans.</li>
+    <li><strong>The widest gap is about $2,500 per person.</strong> It happens around $10,000 of claims in one person's year: Kaiser comes to $7,480, CAT to $10,000. Above about $16,300 of claims per person, Kaiser costs more.</li>
+    <li><strong>Brand-name drugs are the exception.</strong> CAT excludes them, and those costs have no ceiling.</li>
+  </ul>
+</section>
+
+<section id="three">
+  <h2>CAT vs VL $2,750 vs Copay $2,500</h2>
+  <div class="takeaway"><span class="k">Takeaway</span><p>Pick CAT unless someone needs frequent specialist visits, labs or scans; in that case pick Copay $2,500. Skip VL, because its caps leave you exposed in exactly the kind of year insurance is for.</p></div>
+
+  <h3>Side by side</h3>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th>$10K CAT</th><th>VL $2,750</th><th>Copay $2,500</th></tr></thead>
+    <tbody>
+      <tr><td>Premium/yr</td><td class="best">$12,420</td><td>$14,445 (+$2,025)</td><td>$16,185 (+$3,765)</td></tr>
+      <tr><td>Out-of-network</td><td>50% after separate $20k deductible</td><td class="warn">Not covered</td><td>50% after separate $5k deductible</td></tr>
+      <tr><td>Deductible, person / family</td><td>$10,000 / $20,000</td><td>$2,750 / $5,500</td><td>$2,500 / $5,000</td></tr>
+      <tr><td>OOP max, person / family</td><td class="best">$10,000 / $20,000</td><td>$12,000 / $24,000</td><td>$10,200 / $20,400</td></tr>
+      <tr><td>After the deductible</td><td>Covered in full</td><td>Fixed copays</td><td>Fixed copays; 20% on unlisted services</td></tr>
+      <tr><td>Office visits</td><td>Full price until deductible; telemedicine $0</td><td>$50 / $75 / $90</td><td>$50 / $75 / $90</td></tr>
+      <tr><td>Labs / X-ray / MRI-CT</td><td>Full price until deductible</td><td>$75 / $100 / $350 after deductible</td><td>$75 / $100 / <strong>$250</strong>, no deductible</td></tr>
+      <tr><td>ER</td><td>Covered in full once deductible is met</td><td>$1,000 after deductible</td><td>$1,000 after deductible</td></tr>
+      <tr><td>Prescriptions</td><td colspan="3">Generics $0; brand-name <strong>not covered</strong> on all three</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Annual caps</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Service</th><th>CAT</th><th>VL $2,750</th><th>Copay $2,500</th></tr></thead>
+    <tbody>
+      <tr><td>Office visits</td><td>No cap</td><td class="warn">12 a year, combined</td><td>No cap</td></tr>
+      <tr><td>Labs, X-rays, imaging</td><td>No cap</td><td class="warn">3 of each a year</td><td>No cap</td></tr>
+      <tr><td>ER visits</td><td>No cap</td><td class="warn">2 a year</td><td>No cap</td></tr>
+      <tr><td>Hospital</td><td>No cap</td><td class="warn">10 days per stay, 3 stays a year</td><td>No cap</td></tr>
+      <tr><td>Surgeries</td><td>No cap</td><td class="warn">2 inpatient + 2 outpatient</td><td>No cap</td></tr>
+      <tr><td>Chemo and infusions</td><td>No cap</td><td class="warn">10 visits a year, combined</td><td>No cap</td></tr>
+      <tr><td>Transplant, dialysis</td><td>Covered (dialysis short-term)</td><td class="warn">Not covered</td><td>Covered</td></tr>
+      <tr><td>PT / chiropractic</td><td>24 / 20</td><td>12 / 12</td><td>16 / 12</td></tr>
+      <tr><td>Skilled nursing / rehab days</td><td>30 / 30</td><td>10 / 10</td><td>21 / 14</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout">Care past VL's caps is billed to you in full and doesn't count toward its $12k out-of-pocket max.</div>
+
+  <h3>What common events would cost</h3>
+  <p class="small dim">These assume nothing has been paid toward the deductible yet that year. Prices are rough estimates of negotiated rates.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Event</th><th class="num">CAT</th><th class="num">VL $2,750</th><th class="num">Copay $2,500</th></tr></thead>
+    <tbody>
+      <tr><td>Child's ER visit (~$2,500)</td><td class="num">$2,500</td><td class="num">$2,500</td><td class="num">$2,500</td></tr>
+      <tr><td>MRI (~$1,500)</td><td class="num">$1,500</td><td class="num">$1,500</td><td class="num best">$250</td></tr>
+      <tr><td>Outpatient surgery (~$12k)</td><td class="num">$10,000</td><td class="num best">~$3,900</td><td class="num">~$6,300</td></tr>
+      <tr><td>4-day hospital stay with surgery (~$60k)</td><td class="num">$10,000</td><td class="num">~$8,000</td><td class="num">~$8,300</td></tr>
+      <tr><td>Cancer treatment year (~$150k)</td><td class="num best">$10,000 max</td><td class="num warn">Uncapped</td><td class="num">$10,200 max</td></tr>
+      <tr><td>Chronic-condition year (~$10k of visits, labs, scans)</td><td class="num">~$10,000</td><td class="num warn">Over the caps</td><td class="num best">~$3,400</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="cards">
+    <div class="card"><h3>$10K CAT <span class="pill pos">default pick</span></h3><p class="small">Lowest cost in all three modeled years. Once one person reaches $10,000, everything is covered with no limits. It requires savings that can cover a $10k–$20k bad year.</p></div>
+    <div class="card"><h3>Copay $2,500 <span class="pill mix">if care is ongoing</span></h3><p class="small">Costs $3,765 more in premium. It pays that back in years with frequent mid-priced care, saving about $6,600 in a chronic-condition year. In quiet years and catastrophic ones it saves nothing.</p></div>
+    <div class="card"><h3>VL $2,750 <span class="pill neg">skip</span></h3><p class="small">Its caps leave a bad year with no ceiling. It has no out-of-network coverage and the highest out-of-pocket max of the three. It costs $2,025 more than CAT and covers less.</p></div>
+  </div>
+</section>
+
+<section id="congress">
+  <h2>Will Congress remove the 400% cap?</h2>
+  <div class="takeaway"><span class="k">Takeaway</span><p>I estimate about 10% in the lame-duck session and 25–35% during 2027. Democrats now control Congress, but any bill still needs Trump's signature.</p></div>
+  <div class="tiles">
+    <div class="tile"><div class="big">~10%</div><div class="lbl">Lame duck, through January 3. Republicans control it, and the December 11 funding deadline dominates.</div></div>
+    <div class="tile"><div class="big">25–35%</div><div class="lbl">Law during 2027 that removes or raises the cap</div></div>
+    <div class="tile"><div class="big">56–44</div><div class="lbl">Democratic Senate majority. That's short of 60, so a bill would likely go through reconciliation.</div></div>
+  </div>
+  <ul>
+    <li><strong>Where it stands:</strong> the House passed a three-year extension on January 8, 2026 (230–196). The Senate never voted, and no extension has become law for 2027.</li>
+    <li><strong>The path in 2027:</strong> reconciliation needs only 51 votes and fits a tax credit; the 2021 expansion passed this way. It's slow, though, and Trump can still veto. Any deal might raise the cap rather than remove it.</li>
+    <li><strong>Retroactivity:</strong> a 2027 law could apply back to January 1, as the 2021 law did, possibly with a special enrollment period. Neither is guaranteed.</li>
+  </ul>
+  <p class="small dim">These odds are my judgment from news coverage, not market odds.</p>
+</section>
+
+<section id="decide">
+  <h2>Stay or switch: the decision rule</h2>
+  <div class="takeaway"><span class="k">Takeaway</span><p>If 2027 income will be clearly over about $132,000, switch. Paying an extra $10k–$15k to wait on Kaiser only makes sense if a law is 66–93% likely.</p></div>
+  <div class="cards">
+    <div class="card"><h3>Clearly under ~$132k</h3><p class="act">Stay on Kaiser</p><p class="small">$8,022/yr and the best coverage. A new law would only make the subsidy bigger.</p></div>
+    <div class="card"><h3>Near ~$132k</h3><p class="act">Stay, with a reduced advance subsidy</p><p class="small">You keep the subsidy if you land under the line, and a law helps if you land over. A smaller advance limits what you'd owe back.</p></div>
+    <div class="card"><h3>Clearly over ~$132k</h3><p class="act">Switch to CAT, or Copay $2,500</p><p class="small">The chance of a law is too low to justify waiting.</p></div>
+  </div>
+  <h3>Break-even, if income ends up over the cliff</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Scenario</th><th class="num">Extra cost of staying, no law</th><th class="num">Savings from staying, retroactive law</th><th class="num">Odds needed to stay</th></tr></thead>
+    <tbody>
+      <tr><td>Healthy year</td><td class="num">$11,571</td><td class="num">$4,658</td><td class="num">71%</td></tr>
+      <tr><td>Moderate year</td><td class="num">$10,731</td><td class="num">$5,498</td><td class="num">66%</td></tr>
+      <tr><td>Worst case</td><td class="num">$15,131</td><td class="num">$1,098</td><td class="num">93%</td></tr>
+    </tbody>
+  </table></div>
+  <p>At 30% odds, switching saves about <strong>$6,700</strong> on average in a healthy year. Three more things push the answer toward switching:</p>
+  <ul>
+    <li><strong>The law may not help in 2027.</strong> It could start in 2028, or raise the cap to an income still below yours.</li>
+    <li><strong>You may be able to move back.</strong> A mid-year special enrollment period could let you return to Covered CA, if AmeriBenefit allows mid-year cancellation.</li>
+    <li><strong>Staying with the full advance subsidy has its own risk.</strong> If income lands over the cliff, you repay about $16,200 at tax time, with no cap.</li>
+  </ul>
+</section>
+
+<section id="check">
+  <h2>Checklist before switching</h2>
+  <div class="takeaway"><span class="k">Takeaway</span><p>Five questions for the broker and one prescription check could each change the answer. Settle them before Covered CA open enrollment closes.</p></div>
+  <ul class="check">
+    <li>Eligibility: the family qualifies for the association plan. The rate sheet says "before employer contribution," which implies employee status.</li>
+    <li>The plan counts as Minimum Essential Coverage, so there's no CA mandate penalty</li>
+    <li>Final tier is Tier 2 at the 45–54 band, and the Family rate keys only off the subscriber's age</li>
+    <li>Mid-year cancellation is allowed, in case a subsidy law passes</li>
+    <li>Copays count toward the out-of-pocket max</li>
+    <li>Every current prescription is checked against the formulary. Brand-name drugs aren't covered on CAT, VL or Copay.</li>
+    <li>The family's doctors and nearest hospital are in-network: Cigna for CAT and Copay, PHCS for VL</li>
+    <li>APTC is set to $0 for any Covered CA months while expecting income over the cliff</li>
+    <li>2027 enrollment deadlines are checked for both Covered CA and AmeriBenefit</li>
+  </ul>
+</section>
+
+<section id="sources">
+  <h2>Sources</h2>
+  <ul class="small">
+    <li>AmeriBenefit broker outline and five 2027 Protection plan brochures (Tier 1 benefit illustrations, Tier 1–3 premiums)</li>
+    <li>Kaiser Bronze 60 HMO 2027 Summary of Benefits and 2027 Covered CA premium quote</li>
+    <li><a href="https://healthinsurancenetwork.org/guide/will-aca-subsidies-come-back">Health Insurance Network: Will the ACA subsidies come back?</a></li>
+    <li><a href="https://randall.house.gov/media/press-releases/randall-applauds-house-passage-aca-tax-credit-extension-calls-senate-vote">Rep. Randall: House passage of ACA tax credit extension</a></li>
+    <li><a href="https://www.freedinsure.com/health-insurance-news/aca-subsidies-extension-2027/">Freedinsure: ACA subsidies extension 2027</a></li>
+    <li><a href="https://www.yahoo.com/news/politics/article/final-2026-midterm-election-results-democrats-clinch-56-seat-senate-majority-with-peltolas-alaska-win-what-they-can--and-cant--do-next-184618858.html">Yahoo News: Final 2026 midterm results</a></li>
+    <li><a href="https://www.statnews.com/2026/11/03/midterm-elections-what-democratic-control-senate-means-healthcare/">STAT: What Democratic control means for health care</a></li>
+    <li><a href="https://gai.georgetown.edu/whats-next-divided-government-after-the-2026-midterm">Georgetown GAI: Divided government after the 2026 midterm</a></li>
+    <li><a href="https://www.pwc.com/us/en/industries/health-industries/health-policy-and-intelligence-institute/us-healthcare-policy-2026-midterms.html">PwC: US health policy after the 2026 midterms</a></li>
+    <li><a href="https://www.asaonline.com/2026/11/11/theyre-back-congress-returns-for-lame-duck-session-with-packed-legislative-agenda/">ASA: Congress returns for lame-duck session</a></li>
+  </ul>
+</section>
+
+<footer>Companion to <code>2027-ameribenefits-vs-kaiser-bronze-60.md</code>. A planning summary; the official plan documents govern.</footer>
+</main>
+</div>
+</div>
+<script>
+// Highlight the TOC entry for the section currently in view.
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav.toc a'));
+  if (!('IntersectionObserver' in window) || !links.length) return;
+  var byId = {};
+  links.forEach(function (a) { byId[a.getAttribute('href').slice(1)] = a; });
+  var visible = {};
+  var obs = new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) { visible[e.target.id] = e.isIntersecting; });
+    var current = null;
+    links.forEach(function (a) { var id = a.getAttribute('href').slice(1); if (!current && visible[id]) current = id; });
+    if (!current) return;
+    links.forEach(function (a) { a.classList.toggle('active', a === byId[current]); });
+  }, { rootMargin: '0px 0px -60% 0px' });
+  Object.keys(byId).forEach(function (id) { var el = document.getElementById(id); if (el) obs.observe(el); });
+})();
+</script>
+</body>
+</html>
