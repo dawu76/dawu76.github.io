@@ -23,6 +23,15 @@ a { color: var(--accent); font-weight: 600; text-decoration: none; }
 a:hover { text-decoration: underline; }
 .meta { color: var(--muted); font-size: 0.9rem; margin-top: 4px; }
 footer { color: var(--muted); font-size: 0.85rem; margin-top: 40px; }
+details.digests { margin-top: 32px; }
+details.digests > summary { cursor: pointer; font-size: 1.05rem; font-weight: 600; color: var(--muted); padding: 4px 0; }
+details.digests > summary .count { font-weight: 400; font-size: 0.9rem; margin-left: 6px; }
+details.digests > p.meta { margin: 8px 0 12px; }
+ul.daylist { gap: 8px; }
+ul.daylist li { padding: 10px 14px; display: flex; gap: 12px; align-items: baseline; }
+ul.daylist li a { flex: 0 0 auto; min-width: 6.5em; }
+ul.daylist .themes { color: var(--muted); font-size: 0.9rem; }
+@media (max-width: 520px) { ul.daylist li { flex-direction: column; gap: 2px; } }
 </style>
 </head>
 <body>
@@ -67,6 +76,19 @@ footer { color: var(--muted); font-size: 0.85rem; margin-top: 40px; }
 <li><a href="health-plan-2027.html">2027 health plan: AmeriBenefit association plans vs. Kaiser Bronze 60 HMO</a>
   <div class="meta">Nov 2026 · Total cost for a family of 4 with and without the Covered CA subsidy, CAT vs. VL vs. Copay plans, the odds Congress lifts the 400% FPL cap, and a stay-or-switch rule by income.</div></li>
 </ul>
+<details class="digests">
+<summary>Daily market digests <span class="count">7 days</span></summary>
+<p class="meta">One page per day summarizing that day's market and investment newsletters, newest first.</p>
+<ul class="daylist">
+<li><a href="digest-2026-11-20.html">Fri, Nov 20</a><span class="themes">Seventh straight loss, capitulation-style close · Anthropic&#x27;s pop fades · Nvidia accounting probe · AI credit swaps · compute buyers gain leverage</span></li>
+<li><a href="digest-2026-11-19.html">Thu, Nov 19</a><span class="themes">Anthropic&#x27;s debut ($83 → $97) · what it&#x27;s worth · build-out math · Nvidia&#x27;s $668B of promises · AMD&#x27;s China questions</span></li>
+<li><a href="digest-2026-11-18.html">Wed, Nov 18</a><span class="themes">Nvidia&#x27;s beat fades · commitments and guarantees · SEC probe and late 10-Q · Anthropic prices · outages</span></li>
+<li><a href="digest-2026-11-17.html">Tue, Nov 17</a><span class="themes">Setup into Nvidia&#x27;s report · the remote-access rule read closely · China before Shenzhen · Anthropic pricing · AI demand</span></li>
+<li><a href="digest-2026-11-16.html">Mon, Nov 16</a><span class="themes">Selling spreads · remote-access rule lands · Nvidia&#x27;s board and the return campaign · SemiAnalysis capex cut · Anthropic IPO week</span></li>
+<li><a href="digest-2026-11-15.html">Sun, Nov 15</a><span class="themes">Bonds sell off, stocks +2.5% · Nvidia&#x27;s financing web · Anthropic&#x27;s commitments · how far stocks could fall</span></li>
+<li><a href="digest-2026-11-14.html">Sat, Nov 14</a><span class="themes">Week in review · Nvidia after Huang · succession · the export fight · neocloud and SoftBank credit</span></li>
+</ul>
+</details>
 <footer>Figures come from public filings, news and sell-side research as cited on each page, and were current when written.</footer>
 </main>
 </body>
